@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Stärken- &amp; Kompetenzprofil – Praxis</title>
+<style>
+  :root{ --teal:#07697A; --teal-d:#054e5b; --teal-l:#e3f0f2; --ink:#1f2a2d; --mut:#5d6b6e;
+         --line:#d7e0e1; --bg:#f4f7f7; --ok:#2e7d57; --warn:#c0563d; --gold:#cdb14a; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Arial,Helvetica,sans-serif;color:var(--ink);background:var(--bg);font-size:15px}
+  a{color:var(--teal)}
+  .wrap{max-width:1000px;margin:0 auto;padding:18px}
+  .topbar{background:var(--teal);color:#fff;padding:12px 18px;display:flex;align-items:center;justify-content:space-between}
+  .topbar .ttl{font-size:18px;font-weight:bold}
+  .btn{background:var(--teal);color:#fff;border:none;border-radius:8px;padding:9px 14px;font-size:14px;cursor:pointer;font-family:inherit}
+  .btn:hover{background:var(--teal-d)}
+  .btn.sec{background:#fff;color:var(--teal);border:1px solid var(--teal)}
+  .btn.ghost{background:transparent;color:#fff;border:1px solid #ffffff66}
+  .btn.danger{background:var(--warn)}
+  .btn.sm{padding:5px 9px;font-size:13px;border-radius:6px}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px;margin:14px 0;box-shadow:0 1px 2px #0000000a}
+  .center{max-width:440px;margin:40px auto}
+  h1,h2,h3{color:var(--teal)} h1{font-size:26px;margin:.2em 0}
+  label{display:block;font-size:13px;color:var(--mut);margin:10px 0 4px}
+  input,select,textarea{width:100%;padding:9px;border:1px solid var(--line);border-radius:8px;font-size:15px;font-family:inherit}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  .row>*{flex:1}
+  .pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:bold}
+  .pill.draft{background:#eee;color:#555}.pill.released{background:#dff0e6;color:var(--ok)}
+  .pill.locked{background:#fbe6df;color:var(--warn)}.pill.completed{background:var(--teal-l);color:var(--teal)}
+  .err{background:#fbe6df;color:var(--warn);padding:9px;border-radius:8px;margin:8px 0;font-size:14px}
+  .ok{background:#dff0e6;color:var(--ok);padding:9px;border-radius:8px;margin:8px 0;font-size:14px}
+  .muted{color:var(--mut);font-size:13px}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+  th{background:var(--teal-l);color:var(--teal)}
+  .sec-head{display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:10px 12px;background:var(--teal-l);
+            border:1px solid var(--line);border-radius:8px;margin-top:8px;font-weight:bold;color:var(--teal)}
+  .scale{display:flex;gap:4px;flex-wrap:wrap}
+  .sbtn{border:1px solid var(--line);background:#fff;border-radius:6px;padding:5px 9px;cursor:pointer;font-size:13px;min-width:34px;text-align:center}
+  .sbtn.on{background:var(--teal);color:#fff;border-color:var(--teal)}
+  .sbtn.g0.on{background:#9aa5a1;border-color:#9aa5a1}
+  .item{border-bottom:1px solid var(--line);padding:10px 4px}
+  .item:last-child{border-bottom:none}
+  .logo-prev{max-height:60px;max-width:180px;border:1px solid var(--line);border-radius:6px;padding:4px;background:#fff}
+  .tag{font-family:monospace;background:var(--teal-l);color:var(--teal);padding:2px 8px;border-radius:6px;font-weight:bold;letter-spacing:1px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:640px){.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<!-- Konfiguration & Katalog -->
+<script src="config.js"></script>
+<script src="catalog.js"></script>
+<!-- Bibliotheken -->
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script>
+  // JSX im klassischen Modus übersetzen (React.createElement statt Modul-Import),
+  // damit es ohne Build-Schritt direkt im Browser läuft.
+  Babel.registerPreset("react-classic", {
+    presets: [[Babel.availablePresets["react"], { runtime: "classic" }]],
+  });
+</script>
+
+<script type="text/babel" data-presets="react-classic">
+const { useState, useEffect, useCallback, useRef } = React;
+const CFG = window.APP_CONFIG || {};
+// Einfache In-Memory-Sperre statt der browserweiten Navigator-LockManager-Sperre.
+// Diese App wird pro Browser von genau einer Person genutzt – damit vermeiden wir
+// seltene, schwer zu findende Deadlocks über mehrere Tabs/Kontexte hinweg.
+const db = supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY, {
+  auth: { lock: async (_name, _timeout, fn) => await fn() },
+});
+const CATALOG = window.CATALOG, G_SCALE = window.G_SCALE, B_SCALE = window.B_SCALE;
+const FN_BASE = (CFG.SUPABASE_URL || "") + "/functions/v1";
+
+/* ---------- Hilfen ---------- */
+const itemKey = (si, ii) => si + "_" + ii;
+const randCode = (n=6)=>{const c="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";let s="";for(let i=0;i<n;i++)s+=c[Math.floor(Math.random()*c.length)];return s;};
+const fmt1 = x => x==null?"–":(Math.round(x*10)/10).toString().replace(".",",");
+const pct = x => x==null?"–":Math.round(x*100)+" %";
+
+function computeAll(fk, ma){
+  // fk: {key:{g,b}}, ma:{key:{b}}
+  const sections = CATALOG.map(([name, items], si)=>{
+    let max=0, nFk=0, nMa=0, agSum=0, agCnt=0, done=0;
+    items.forEach((_,ii)=>{
+      const k=itemKey(si,ii);
+      const g=(fk[k]&&fk[k].g)||0;
+      const bFk=(fk[k]&&fk[k].b)||0;
+      const bMa=(ma[k]&&ma[k].b)||0;
+      max+=g*5; nFk+=g*bFk; nMa+=g*bMa;
+      if(bFk&&bMa){ agSum+=1-Math.abs(bMa-bFk)/5; agCnt++; }
+      if(g||bFk||bMa) done++;
+    });
+    return {name, si, max, nFk, nMa, done, total:items.length,
+            agree: agCnt? agSum/agCnt : null};
+  });
+  const tot = sections.reduce((a,s)=>({max:a.max+s.max,nFk:a.nFk+s.nFk,nMa:a.nMa+s.nMa}),{max:0,nFk:0,nMa:0});
+  const agAll = sections.filter(s=>s.agree!=null);
+  tot.agree = agAll.length? agAll.reduce((a,s)=>a+s.agree,0)/agAll.length : null;
+  return {sections, tot};
+}
+
+/* ---------- Score-Picker ---------- */
+function Picker({scale, value, onChange, disabled, g}){
+  return <div className="scale">{scale.map(s=>
+    <div key={s.v}
+      className={"sbtn "+(g&&s.v===0?"g0 ":"")+(value===s.v?"on":"")}
+      title={s.label}
+      onClick={()=>!disabled && onChange(value===s.v?null:s.v)}
+      style={disabled?{opacity:.6,cursor:"default"}:{}}>{s.short}</div>)}</div>;
+}
+
+/* ================= APP ================= */
+function App(){
+  const [boot,setBoot]=useState(true);
+  const [view,setView]=useState("home"); // home|fkAuth|fk|maLogin|ma
+  const [practice,setPractice]=useState(null);
+  const [employee,setEmployee]=useState(null);
+
+  const detect = useCallback(async ()=>{
+    const {data:{session}} = await db.auth.getSession();
+    if(!session){ setView("home"); setBoot(false); return; }
+    const uid = session.user.id;
+    const {data:pr} = await db.from("practices").select("*").eq("owner",uid).maybeSingle();
+    if(pr){ setPractice(pr); setView("fk"); setBoot(false); return; }
+    const {data:emp} = await db.from("employees").select("*").eq("auth_uid",uid).maybeSingle();
+    if(emp){ setEmployee(emp); setView("ma"); setBoot(false); return; }
+    setView("home"); setBoot(false);
+  },[]);
+  useEffect(()=>{ detect(); },[detect]);
+
+  async function logout(){ await db.auth.signOut(); setPractice(null); setEmployee(null); setView("home"); }
+
+  if(!CFG.SUPABASE_URL || CFG.SUPABASE_URL.includes("DEINPROJEKT")){
+    return <div className="center card"><h2>Fast fertig</h2><p>Bitte trage in <b>config.js</b> deine Supabase-Daten ein (siehe README, Schritt 2).</p></div>;
+  }
+  if(boot) return <div className="center"><p className="muted">Lädt…</p></div>;
+
+  return <div>
+    <div className="topbar">
+      <div className="ttl">Stärken- &amp; Kompetenzprofil</div>
+      <div>{(view==="fk"||view==="ma") &&
+        <button className="btn ghost" onClick={logout}>Abmelden</button>}</div>
+    </div>
+    <div className="wrap">
+      {view==="home" && <Home onFK={()=>setView("fkAuth")} onMA={()=>setView("maLogin")}/>}
+      {view==="fkAuth" && <FKAuth onBack={()=>setView("home")} onReady={p=>{setPractice(p);setView("fk");}}/>}
+      {view==="fk" && practice && <FKApp practice={practice} setPractice={setPractice}/>}
+      {view==="maLogin" && <MALogin onBack={()=>setView("home")} onReady={()=>detect()}/>}
+      {view==="ma" && employee && <MAApp employee={employee}/>}
+    </div>
+  </div>;
+}
+
+/* ---------- Startseite ---------- */
+function Home({onFK,onMA}){
+  return <div className="center">
+    <div className="card" style={{textAlign:"center"}}>
+      <h1>Willkommen</h1>
+      <p className="muted">Bewertung von Wissensstand und Entwicklungspotenzial in der Praxis.</p>
+      <div style={{display:"flex",flexDirection:"column",gap:10,marginTop:18}}>
+        <button className="btn" onClick={onFK}>Als Führungskraft anmelden</button>
+        <button className="btn sec" onClick={onMA}>Als Mitarbeiter:in anmelden</button>
+      </div>
+    </div>
+  </div>;
+}
+
+/* ---------- FK Auth ---------- */
+function FKAuth({onBack,onReady}){
+  const [tab,setTab]=useState("login");
+  const [email,setEmail]=useState(""),[pw,setPw]=useState(""),[pname,setPname]=useState("");
+  const [err,setErr]=useState(""),[msg,setMsg]=useState(""),[busy,setBusy]=useState(false);
+
+  async function loadOrFail(){
+    const {data:{session}} = await db.auth.getSession();
+    const {data:pr} = await db.from("practices").select("*").eq("owner",session.user.id).maybeSingle();
+    return pr;
+  }
+  async function doLogin(){
+    setErr("");setBusy(true);
+    try{
+      const {error}=await db.auth.signInWithPassword({email,password:pw});
+      if(error){setErr("Login fehlgeschlagen: "+error.message);setBusy(false);return;}
+      const pr=await loadOrFail();
+      if(!pr){setErr("Kein Praxis-Konto zu diesem Login gefunden.");setBusy(false);return;}
+      onReady(pr);
+    }catch(e){ setErr("Login fehlgeschlagen: "+e.message); setBusy(false); }
+  }
+  async function doRegister(){
+    setErr("");setBusy(true);
+    if(!pname.trim()){setErr("Bitte einen Praxisnamen angeben.");setBusy(false);return;}
+    try{
+      const {data,error}=await db.auth.signUp({email,password:pw});
+      if(error){setErr("Registrierung fehlgeschlagen: "+error.message);setBusy(false);return;}
+      if(!data.session){setErr("Bitte in Supabase die E-Mail-Bestätigung deaktivieren (README 1b).");setBusy(false);return;}
+      let pr=null,tries=0;
+      while(!pr && tries<4){
+        const code=randCode();
+        const {data:ins,error:e2}=await db.from("practices")
+          .insert({owner:data.user.id,name:pname.trim(),join_code:code}).select().single();
+        if(!e2){pr=ins;break;} tries++;
+      }
+      if(!pr){setErr("Praxis konnte nicht angelegt werden.");setBusy(false);return;}
+      onReady(pr);
+    }catch(e){ setErr("Registrierung fehlgeschlagen: "+e.message); setBusy(false); }
+  }
+  async function doForgot(){
+    setErr("");setMsg("");setBusy(true);
+    const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo:window.location.href});
+    setBusy(false);
+    if(error)setErr(error.message); else setMsg("E-Mail zum Zurücksetzen wurde versendet (sofern das Konto existiert).");
+  }
+
+  return <div className="center">
+    <button className="btn sm sec" onClick={onBack}>← Zurück</button>
+    <div className="card">
+      <div className="row" style={{marginBottom:8}}>
+        <button className={"btn sm "+(tab==="login"?"":"sec")} onClick={()=>setTab("login")}>Anmelden</button>
+        <button className={"btn sm "+(tab==="register"?"":"sec")} onClick={()=>setTab("register")}>Registrieren</button>
+        <button className={"btn sm "+(tab==="forgot"?"":"sec")} onClick={()=>setTab("forgot")}>Passwort?</button>
+      </div>
+      {err && <div className="err">{err}</div>}
+      {msg && <div className="ok">{msg}</div>}
+      {tab==="register" && <><label>Praxisname</label><input value={pname} onChange={e=>setPname(e.target.value)}/></>}
+      <label>E-Mail</label><input type="email" value={email} onChange={e=>setEmail(e.target.value)}/>
+      {tab!=="forgot" && <><label>Passwort</label><input type="password" value={pw} onChange={e=>setPw(e.target.value)}/></>}
+      <div style={{marginTop:14}}>
+        {tab==="login" && <button className="btn" disabled={busy} onClick={doLogin}>Anmelden</button>}
+        {tab==="register" && <button className="btn" disabled={busy} onClick={doRegister}>Praxis anlegen</button>}
+        {tab==="forgot" && <button className="btn" disabled={busy} onClick={doForgot}>Reset-Link senden</button>}
+      </div>
+    </div>
+  </div>;
+}
+
+/* ---------- FK App ---------- */
+function FKApp({practice,setPractice}){
+  const [employees,setEmployees]=useState([]);
+  const [sel,setSel]=useState(null);    // employee
+  const [cycle,setCycle]=useState(null);
+  const [err,setErr]=useState("");
+
+  const load=useCallback(async()=>{
+    const {data}=await db.from("employees").select("*").eq("practice_id",practice.id).order("created_at");
+    setEmployees(data||[]);
+  },[practice.id]);
+  useEffect(()=>{load();},[load]);
+
+  async function callFn(action,payload){
+    const {data:{session}}=await db.auth.getSession();
+    const r=await fetch(FN_BASE+"/manage-employee",{method:"POST",
+      headers:{Authorization:"Bearer "+session.access_token,"Content-Type":"application/json"},
+      body:JSON.stringify({action,...payload})});
+    const j=await r.json(); if(!r.ok)throw new Error(j.error||"Fehler"); return j;
+  }
+
+  if(cycle) return <CycleEditor role="fk" practice={practice} employee={sel} cycle={cycle}
+      onBack={()=>setCycle(null)} reloadCycle={setCycle}/>;
+  if(sel) return <EmployeeView practice={practice} employee={sel} callFn={callFn}
+      onBack={()=>{setSel(null);load();}} openCycle={setCycle}/>;
+
+  return <div>
+    <div className="card">
+      <h2>{practice.name}</h2>
+      <p className="muted">Praxis-Code für Mitarbeiter: <span className="tag">{practice.join_code}</span> – diesen Code zusammen mit Name &amp; Zugangscode an Mitarbeiter geben.</p>
+      <LogoBox practice={practice} setPractice={setPractice}/>
+    </div>
+    {err && <div className="err">{err}</div>}
+    <div className="card">
+      <h3>Mitarbeiter:innen</h3>
+      <AddEmployee onAdd={async(name,position,code)=>{
+        try{await callFn("create",{practice_id:practice.id,name,position,code});await load();}
+        catch(e){setErr(e.message);}}}/>
+      <table style={{marginTop:12}}>
+        <thead><tr><th>Name</th><th>Position</th><th>Status</th><th></th></tr></thead>
+        <tbody>{employees.map(e=>
+          <tr key={e.id}>
+            <td>{e.name}</td><td>{e.position||"–"}</td>
+            <td>{e.active?"aktiv":"inaktiv"}</td>
+            <td><button className="btn sm sec" onClick={()=>setSel(e)}>Öffnen</button></td>
+          </tr>)}
+          {employees.length===0 && <tr><td colSpan="4" className="muted">Noch keine Mitarbeiter angelegt.</td></tr>}
+        </tbody>
+      </table>
+    </div>
+  </div>;
+}
+
+function LogoBox({practice,setPractice}){
+  const [busy,setBusy]=useState(false);
+  async function up(e){
+    const f=e.target.files[0]; if(!f)return; setBusy(true);
+    const rd=new FileReader();
+    rd.onload=async()=>{
+      const {data}=await db.from("practices").update({logo:rd.result}).eq("id",practice.id).select().single();
+      if(data)setPractice(data); setBusy(false);
+    };
+    rd.readAsDataURL(f);
+  }
+  return <div style={{marginTop:10}}>
+    <label>Praxis-Logo (erscheint im Word-Export)</label>
+    <div className="row" style={{alignItems:"center"}}>
+      {practice.logo && <img className="logo-prev" src={practice.logo}/>}
+      <input type="file" accept="image/*" onChange={up} disabled={busy}/>
+      {practice.logo && <button className="btn sm sec" onClick={async()=>{
+        const {data}=await db.from("practices").update({logo:null}).eq("id",practice.id).select().single();
+        if(data)setPractice(data);}}>Entfernen</button>}
+    </div>
+  </div>;
+}
+
+function AddEmployee({onAdd}){
+  const [n,setN]=useState(""),[p,setP]=useState(""),[c,setC]=useState(randCode());
+  return <div className="grid2">
+    <div><label>Name</label><input value={n} onChange={e=>setN(e.target.value)}/></div>
+    <div><label>Position</label><input value={p} onChange={e=>setP(e.target.value)}/></div>
+    <div><label>Zugangscode</label>
+      <div className="row"><input value={c} onChange={e=>setC(e.target.value)}/>
+        <button className="btn sm sec" style={{flex:"0 0 auto"}} onClick={()=>setC(randCode())}>neu</button></div></div>
+    <div style={{display:"flex",alignItems:"flex-end"}}>
+      <button className="btn" onClick={()=>{if(n.trim()&&c.trim()){onAdd(n.trim(),p.trim(),c.trim());setN("");setP("");setC(randCode());}}}>Mitarbeiter anlegen</button>
+    </div>
+  </div>;
+}
+
+function EmployeeView({practice,employee,callFn,onBack,openCycle}){
+  const [cycles,setCycles]=useState([]);
+  const [err,setErr]=useState(""),[code,setCode]=useState(randCode());
+  const load=useCallback(async()=>{
+    const {data}=await db.from("cycles").select("*").eq("employee_id",employee.id).order("created_at",{ascending:false});
+    setCycles(data||[]);
+  },[employee.id]);
+  useEffect(()=>{load();},[load]);
+
+  async function newCycle(){
+    const title=prompt("Titel des Bewertungszyklus (z. B. Jahresgespräch 2026):","");
+    if(title===null)return;
+    const period=prompt("Zeitraum / Datum:","")||"";
+    const {data,error}=await db.from("cycles").insert({practice_id:practice.id,employee_id:employee.id,title,period}).select().single();
+    if(error){setErr(error.message);return;} openCycle(data);
+  }
+  return <div>
+    <button className="btn sm sec" onClick={onBack}>← Übersicht</button>
+    <div className="card">
+      <h2>{employee.name}</h2><p className="muted">{employee.position}</p>
+      {err&&<div className="err">{err}</div>}
+      <div className="row" style={{marginTop:8}}>
+        <div><label>Zugangscode zurücksetzen</label>
+          <div className="row"><input value={code} onChange={e=>setCode(e.target.value)}/>
+            <button className="btn sm sec" style={{flex:"0 0 auto"}} onClick={()=>setCode(randCode())}>neu</button>
+            <button className="btn sm" style={{flex:"0 0 auto"}} onClick={async()=>{
+              try{await callFn("reset_code",{employee_id:employee.id,code});alert("Neuer Code gesetzt: "+code);}catch(e){setErr(e.message);}}}>setzen</button></div>
+        </div>
+        <div style={{display:"flex",alignItems:"flex-end",gap:8}}>
+          <button className="btn sm sec" onClick={async()=>{try{await callFn("set_active",{employee_id:employee.id,active:!employee.active});onBack();}catch(e){setErr(e.message);}}}>{employee.active?"Deaktivieren":"Aktivieren"}</button>
+          <button className="btn sm danger" onClick={async()=>{if(confirm("Mitarbeiter und alle Bewertungen löschen?")){try{await callFn("delete",{employee_id:employee.id});onBack();}catch(e){setErr(e.message);}}}}>Löschen</button>
+        </div>
+      </div>
+    </div>
+    <div className="card">
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        <h3>Bewertungszyklen</h3><button className="btn sm" onClick={newCycle}>+ Neuer Zyklus</button></div>
+      <table style={{marginTop:10}}>
+        <thead><tr><th>Titel</th><th>Zeitraum</th><th>Status</th><th></th></tr></thead>
+        <tbody>{cycles.map(c=>
+          <tr key={c.id}><td>{c.title||"–"}</td><td>{c.period||"–"}</td>
+            <td><StatusPill s={c.status}/></td>
+            <td><button className="btn sm sec" onClick={()=>openCycle(c)}>Öffnen</button></td></tr>)}
+          {cycles.length===0&&<tr><td colSpan="4" className="muted">Noch kein Zyklus.</td></tr>}
+        </tbody></table>
+    </div>
+  </div>;
+}
+
+function StatusPill({s}){
+  const t={draft:"Entwurf",released:"Freigegeben",locked:"Gesperrt",completed:"Abgeschlossen"}[s]||s;
+  return <span className={"pill "+s}>{t}</span>;
+}
+
+/* ---------- Cycle Editor (FK & MA) ---------- */
+function CycleEditor({role,practice,employee,cycle,onBack,reloadCycle}){
+  const isFK = role==="fk";
+  const [fk,setFk]=useState({}); const [ma,setMa]=useState({});
+  const fkRef=useRef({}); const maRef=useRef({}); const chains=useRef({});
+  const [open,setOpen]=useState(0); const [tab,setTab]=useState("edit");
+  const [err,setErr]=useState(""),[saved,setSaved]=useState("");
+  const [status,setStatus]=useState(cycle.status);
+
+  // Schreibvorgänge pro Kriterium in Reihenfolge ausführen (keine Race-Conditions)
+  function enqueue(table,k,row){
+    const key=table+"_"+k;
+    const prev=chains.current[key]||Promise.resolve();
+    const next=prev.then(async()=>{
+      const {error}=await db.from(table).upsert(row,{onConflict:"cycle_id,item_key"});
+      if(error)setErr(error.message); else flash();
+    });
+    chains.current[key]=next.catch(()=>{});
+  }
+
+  useEffect(()=>{(async()=>{
+    if(isFK){
+      const {data}=await db.from("fk_ratings").select("*").eq("cycle_id",cycle.id);
+      const m={};(data||[]).forEach(r=>m[r.item_key]={g:r.g,b:r.b}); fkRef.current=m; setFk(m);
+    }
+    const {data:md}=await db.from("ma_ratings").select("*").eq("cycle_id",cycle.id);
+    const mm={};(md||[]).forEach(r=>mm[r.item_key]={b:r.b}); maRef.current=mm; setMa(mm);
+  })();},[cycle.id,isFK]);
+
+  const maEditable = !isFK && status==="released";
+
+  function saveFk(k,patch){
+    const cur=fkRef.current[k]||{g:null,b:null}; const next={...cur,...patch};
+    fkRef.current={...fkRef.current,[k]:next}; setFk(fkRef.current);
+    enqueue("fk_ratings",k,{cycle_id:cycle.id,item_key:k,g:next.g,b:next.b});
+  }
+  function saveMa(k,b){
+    maRef.current={...maRef.current,[k]:{b}}; setMa(maRef.current);
+    enqueue("ma_ratings",k,{cycle_id:cycle.id,item_key:k,b});
+  }
+  function flash(){setSaved("Gespeichert");clearTimeout(window.__t);window.__t=setTimeout(()=>setSaved(""),1200);}
+
+  async function setStatusTo(s){
+    const {data,error}=await db.from("cycles").update({status:s,updated_at:new Date().toISOString()}).eq("id",cycle.id).select().single();
+    if(error){setErr(error.message);return;} setStatus(s); if(reloadCycle)reloadCycle(data);
+  }
+
+  const comp = computeAll(fk,ma);
+
+  return <div>
+    <button className="btn sm sec" onClick={onBack}>← Zurück</button>
+    <div className="card">
+      <div style={{display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:8}}>
+        <div><h2>{cycle.title||"Bewertungszyklus"}</h2>
+          <p className="muted">{employee?employee.name:""} {cycle.period?"· "+cycle.period:""} · <StatusPill s={status}/></p></div>
+        <div className="row" style={{flex:"0 0 auto",alignItems:"flex-start"}}>
+          {isFK && status==="draft" && <button className="btn sm" onClick={()=>setStatusTo("released")}>Für Mitarbeiter freigeben</button>}
+          {isFK && status==="released" && <button className="btn sm" onClick={()=>setStatusTo("locked")}>Bearbeitung sperren</button>}
+          {isFK && status==="locked" && <button className="btn sm sec" onClick={()=>setStatusTo("released")}>Wieder freigeben</button>}
+          {isFK && (status==="locked"||status==="released") && <button className="btn sm" onClick={()=>setStatusTo("completed")}>Abschließen</button>}
+          {isFK && status==="completed" && <button className="btn sm sec" onClick={()=>setStatusTo("locked")}>Wieder bearbeiten</button>}
+          {isFK && <button className="btn sm" onClick={()=>exportWord(practice,employee,cycle,comp,fk,ma)}>Word herunterladen</button>}
+        </div>
+      </div>
+      {err&&<div className="err">{err}</div>}
+      {saved&&<div className="ok" style={{display:"inline-block"}}>{saved}</div>}
+      {!isFK && status!=="released" && <div className="err">Diese Bewertung ist aktuell {status==="locked"?"gesperrt":"abgeschlossen"} – nur Ansicht, keine Änderungen möglich.</div>}
+      <div className="row" style={{marginTop:8}}>
+        <button className={"btn sm "+(tab==="edit"?"":"sec")} onClick={()=>setTab("edit")}>Bewertung</button>
+        {isFK && <button className={"btn sm "+(tab==="eval"?"":"sec")} onClick={()=>setTab("eval")}>Auswertung</button>}
+      </div>
+    </div>
+
+    {tab==="edit" && CATALOG.map(([name,items],si)=>{
+      const sc=comp.sections[si];
+      return <div key={si}>
+        <div className="sec-head" onClick={()=>setOpen(open===si?-1:si)}>
+          <span>{name}</span><span className="muted">{sc.done}/{sc.total} · {open===si?"▲":"▼"}</span>
+        </div>
+        {open===si && <div className="card" style={{marginTop:4}}>
+          {items.map(([krit,besch],ii)=>{
+            const k=itemKey(si,ii); const f=fk[k]||{}; const mb=(ma[k]||{}).b;
+            return <div className="item" key={ii}>
+              <div style={{fontWeight:"bold"}}>{krit}</div>
+              {besch && <div className="muted" style={{marginBottom:6}}>{besch}</div>}
+              {isFK && <div className="grid2">
+                <div><label>Gewichtung (G)</label><Picker scale={G_SCALE} g value={f.g??null} onChange={v=>saveFk(k,{g:v})}/></div>
+                <div><label>Bewertung Führungskraft (B)</label><Picker scale={B_SCALE} value={f.b??null} onChange={v=>saveFk(k,{b:v})}/></div>
+              </div>}
+              {isFK && <div className="muted" style={{marginTop:6}}>Selbsteinschätzung MA: <b>{mb??"–"}</b></div>}
+              {!isFK && <div><label>Deine Selbsteinschätzung (1–5)</label>
+                <Picker scale={B_SCALE} value={mb??null} disabled={!maEditable} onChange={v=>saveMa(k,v)}/></div>}
+            </div>;
+          })}
+        </div>}
+      </div>;
+    })}
+
+    {tab==="eval" && isFK && <Eval comp={comp}/>}
+  </div>;
+}
+
+function Eval({comp}){
+  return <div className="card">
+    <h3>Auswertung (Nutzwert = Gewichtung × Bewertung)</h3>
+    <table>
+      <thead><tr><th>Bereich</th><th>Max.</th><th>Erreicht MA</th><th>Erreicht FK</th><th>Ø</th><th>Übereinst.</th></tr></thead>
+      <tbody>{comp.sections.map(s=>
+        <tr key={s.si}><td>{s.name}</td><td>{s.max}</td><td>{s.nMa}</td><td>{s.nFk}</td>
+          <td>{fmt1((s.nMa+s.nFk)/2)}</td><td>{pct(s.agree)}</td></tr>)}
+        <tr style={{fontWeight:"bold",background:"var(--teal-l)"}}>
+          <td>GESAMT</td><td>{comp.tot.max}</td><td>{comp.tot.nMa}</td><td>{comp.tot.nFk}</td>
+          <td>{fmt1((comp.tot.nMa+comp.tot.nFk)/2)}</td><td>{pct(comp.tot.agree)}</td></tr>
+      </tbody></table>
+  </div>;
+}
+
+/* ---------- MA Login ---------- */
+function MALogin({onBack,onReady}){
+  const [jc,setJc]=useState(""),[name,setName]=useState(""),[code,setCode]=useState("");
+  const [err,setErr]=useState(""),[busy,setBusy]=useState(false);
+  async function go(){
+    setErr("");setBusy(true);
+    try{
+      const r=await fetch(FN_BASE+"/employee-login",{method:"POST",
+        headers:{Authorization:"Bearer "+CFG.SUPABASE_ANON_KEY,"Content-Type":"application/json"},
+        body:JSON.stringify({join_code:jc,name,code})});
+      const j=await r.json();
+      if(!r.ok)throw new Error(j.error||"Login fehlgeschlagen");
+      await db.auth.setSession({access_token:j.access_token,refresh_token:j.refresh_token});
+      onReady();
+    }catch(e){setErr(e.message);setBusy(false);}
+  }
+  return <div className="center">
+    <button className="btn sm sec" onClick={onBack}>← Zurück</button>
+    <div className="card">
+      <h2>Mitarbeiter-Anmeldung</h2>
+      {err&&<div className="err">{err}</div>}
+      <label>Praxis-Code</label><input value={jc} onChange={e=>setJc(e.target.value.toUpperCase())} placeholder="z. B. AB12CD"/>
+      <label>Name</label><input value={name} onChange={e=>setName(e.target.value)}/>
+      <label>Zugangscode</label><input value={code} onChange={e=>setCode(e.target.value)}/>
+      <div style={{marginTop:14}}><button className="btn" disabled={busy} onClick={go}>Anmelden</button></div>
+    </div>
+  </div>;
+}
+
+/* ---------- MA App ---------- */
+function MAApp({employee}){
+  const [cycles,setCycles]=useState([]); const [cycle,setCycle]=useState(null);
+  useEffect(()=>{(async()=>{
+    const {data}=await db.from("cycles").select("*").eq("employee_id",employee.id).order("created_at",{ascending:false});
+    setCycles(data||[]);
+  })();},[employee.id,cycle]);
+  if(cycle) return <CycleEditor role="ma" employee={employee} cycle={cycle} onBack={()=>setCycle(null)} reloadCycle={setCycle}/>;
+  return <div className="card">
+    <h2>Hallo {employee.name}</h2>
+    <p className="muted">Hier siehst du die für dich freigegebenen Bewertungen.</p>
+    <table style={{marginTop:10}}>
+      <thead><tr><th>Titel</th><th>Zeitraum</th><th>Status</th><th></th></tr></thead>
+      <tbody>{cycles.map(c=>
+        <tr key={c.id}><td>{c.title||"–"}</td><td>{c.period||"–"}</td><td><StatusPill s={c.status}/></td>
+          <td><button className="btn sm sec" onClick={()=>setCycle(c)}>{c.status==="released"?"Bearbeiten":"Ansehen"}</button></td></tr>)}
+        {cycles.length===0&&<tr><td colSpan="4" className="muted">Aktuell ist nichts für dich freigegeben.</td></tr>}
+      </tbody></table>
+  </div>;
+}
+
+/* ---------- Word-Export ---------- */
+function exportWord(practice,employee,cycle,comp,fk,ma){
+  const esc=s=>(s==null?"":String(s)).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  let body="";
+  CATALOG.forEach(([name,items],si)=>{
+    body+=`<h2 style="color:#07697A">${esc(name)}</h2>`;
+    body+=`<table border="1" cellspacing="0" cellpadding="4" style="border-collapse:collapse;width:100%;font-size:10pt">
+      <tr style="background:#e3f0f2;color:#07697A">
+        <th>Kriterium</th><th>Beschreibung</th><th>G</th><th>B&nbsp;MA</th><th>B&nbsp;FK</th><th>Nutzwert&nbsp;FK</th><th>Übereinst.</th></tr>`;
+    items.forEach(([krit,besch],ii)=>{
+      const k=itemKey(si,ii); const f=fk[k]||{}; const mb=(ma[k]||{}).b;
+      const ag=(f.b&&mb)?Math.round((1-Math.abs(mb-f.b)/5)*100)+" %":"–";
+      body+=`<tr><td>${esc(krit)}</td><td>${esc(besch)}</td><td align="center">${f.g??"–"}</td>
+        <td align="center">${mb??"–"}</td><td align="center">${f.b??"–"}</td>
+        <td align="center">${(f.g&&f.b)?f.g*f.b:"–"}</td><td align="center">${ag}</td></tr>`;
+    });
+    body+="</table><br/>";
+  });
+  let eval_="<h2 style='color:#07697A'>Gesamtauswertung</h2><table border='1' cellspacing='0' cellpadding='4' style='border-collapse:collapse;width:100%;font-size:10pt'><tr style='background:#e3f0f2;color:#07697A'><th>Bereich</th><th>Max.</th><th>MA</th><th>FK</th><th>Ø</th><th>Übereinst.</th></tr>";
+  comp.sections.forEach(s=>{eval_+=`<tr><td>${esc(s.name)}</td><td align='center'>${s.max}</td><td align='center'>${s.nMa}</td><td align='center'>${s.nFk}</td><td align='center'>${fmt1((s.nMa+s.nFk)/2)}</td><td align='center'>${pct(s.agree)}</td></tr>`;});
+  eval_+=`<tr style='font-weight:bold;background:#e3f0f2'><td>GESAMT</td><td align='center'>${comp.tot.max}</td><td align='center'>${comp.tot.nMa}</td><td align='center'>${comp.tot.nFk}</td><td align='center'>${fmt1((comp.tot.nMa+comp.tot.nFk)/2)}</td><td align='center'>${pct(comp.tot.agree)}</td></tr></table><br/>`;
+
+  const logo=practice.logo?`<img src="${practice.logo}" style="max-height:70px"/><br/>`:"";
+  const html=`<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word'>
+  <head><meta charset="utf-8"><style>body{font-family:Arial}h1{color:#07697A;font-size:22pt}h2{font-size:13pt}</style></head>
+  <body>${logo}<h1>Stärken- &amp; Kompetenzprofil</h1>
+  <p><b>Praxis:</b> ${esc(practice.name)}<br/><b>Mitarbeiter:in:</b> ${esc(employee?employee.name:"")}<br/>
+  <b>Beurteilung:</b> ${esc(cycle.title||"")}<br/><b>Zeitraum:</b> ${esc(cycle.period||"")}</p>
+  ${eval_}${body}</body></html>`;
+
+  const blob=new Blob(["﻿"+html],{type:"application/msword"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+  a.download=`Kompetenzprofil_${(employee&&employee.name||"MA").replace(/\s+/g,"_")}.doc`;
+  a.click();
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
