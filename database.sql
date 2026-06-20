@@ -19,6 +19,8 @@ create table if not exists public.practices (
   logo        text,                 -- Praxis-Logo als Data-URL (base64), optional
   created_at  timestamptz not null default now()
 );
+-- Praxisname dient als "Benutzername" beim Mitarbeiter-Login -> muss eindeutig sein.
+create unique index if not exists practices_name_unique on public.practices (lower(name));
 
 -- ---------------------------------------------------------------------
 -- 2) MITARBEITER
@@ -32,6 +34,7 @@ create table if not exists public.employees (
   auth_uid    uuid references auth.users (id) on delete set null,
   name        text not null,
   position    text,
+  code        text,                 -- fester, für die FK sichtbarer Zugangscode
   active      boolean not null default true,
   created_at  timestamptz not null default now()
 );
