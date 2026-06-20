@@ -83,16 +83,29 @@ const FN_BASE = (CFG.SUPABASE_URL || "") + "/functions/v1";
 
 /* ---------- Hilfen ---------- */
 const itemKey = (si, ii) => si + "_" + ii;
+const uid = ()=>"c_"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 const randCode = (n=6)=>{const c="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";let s="";for(let i=0;i<n;i++)s+=c[Math.floor(Math.random()*c.length)];return s;};
 const fmt1 = x => x==null?"–":(Math.round(x*10)/10).toString().replace(".",",");
 const pct = x => x==null?"–":Math.round(x*100)+" %";
 
-function computeAll(fk, ma){
-  // fk: {key:{g,b}}, ma:{key:{b}}
-  const sections = CATALOG.map(([name, items], si)=>{
+// Festen Katalog mit den eigenen (von der FK ergänzten) Kriterien zusammenführen.
+// customs: Zeilen aus der Tabelle custom_items. Jede gehört per "section" zu einem Bereich.
+function buildSections(customs){
+  const byName={};
+  (customs||[]).forEach(c=>{(byName[c.section]=byName[c.section]||[]).push(c);});
+  return CATALOG.map(([name, items], si)=>{
+    const base=items.map(([k,d],ii)=>({key:itemKey(si,ii), k, d, custom:false}));
+    const extra=(byName[name]||[]).map(c=>({key:c.item_key, k:c.criterion, d:c.description||"", custom:true, id:c.id}));
+    return {name, si, items:base.concat(extra)};
+  });
+}
+
+function computeAll(sectionsDef, fk, ma){
+  // sectionsDef: Ausgabe von buildSections(); fk: {key:{g,b}}, ma:{key:{b}}
+  const sections = sectionsDef.map((sec)=>{
     let max=0, nFk=0, nMa=0, agSum=0, agCnt=0, done=0;
-    items.forEach((_,ii)=>{
-      const k=itemKey(si,ii);
+    sec.items.forEach((it)=>{
+      const k=it.key;
       const g=(fk[k]&&fk[k].g)||0;
       const bFk=(fk[k]&&fk[k].b)||0;
       const bMa=(ma[k]&&ma[k].b)||0;
@@ -100,7 +113,7 @@ function computeAll(fk, ma){
       if(bFk&&bMa){ agSum+=1-Math.abs(bMa-bFk)/5; agCnt++; }
       if(g||bFk||bMa) done++;
     });
-    return {name, si, max, nFk, nMa, done, total:items.length,
+    return {name:sec.name, si:sec.si, max, nFk, nMa, done, total:sec.items.length,
             agree: agCnt? agSum/agCnt : null};
   });
   const tot = sections.reduce((a,s)=>({max:a.max+s.max,nFk:a.nFk+s.nFk,nMa:a.nMa+s.nMa}),{max:0,nFk:0,nMa:0});
@@ -203,14 +216,16 @@ function FKAuth({onBack,onReady}){
       const {data,error}=await db.auth.signUp({email,password:pw});
       if(error){setErr("Registrierung fehlgeschlagen: "+error.message);setBusy(false);return;}
       if(!data.session){setErr("Bitte in Supabase die E-Mail-Bestätigung deaktivieren (README 1b).");setBusy(false);return;}
-      let pr=null,tries=0;
-      while(!pr && tries<4){
-        const code=randCode();
+      let pr=null,lastErr=null;
+      for(let tries=0;tries<4 && !pr;tries++){
         const {data:ins,error:e2}=await db.from("practices")
-          .insert({owner:data.user.id,name:pname.trim(),join_code:code}).select().single();
-        if(!e2){pr=ins;break;} tries++;
+          .insert({owner:data.user.id,name:pname.trim(),join_code:randCode()}).select().single();
+        if(!e2){pr=ins;break;}
+        lastErr=e2;
+        if(/name_unique|name.*duplicate|duplicate.*name/i.test(e2.message||"")){
+          setErr("Dieser Praxisname ist bereits vergeben – bitte einen anderen wählen.");setBusy(false);return;}
       }
-      if(!pr){setErr("Praxis konnte nicht angelegt werden.");setBusy(false);return;}
+      if(!pr){setErr("Praxis konnte nicht angelegt werden: "+((lastErr&&lastErr.message)||""));setBusy(false);return;}
       onReady(pr);
     }catch(e){ setErr("Registrierung fehlgeschlagen: "+e.message); setBusy(false); }
   }
@@ -249,6 +264,7 @@ function FKApp({practice,setPractice}){
   const [sel,setSel]=useState(null);    // employee
   const [cycle,setCycle]=useState(null);
   const [err,setErr]=useState("");
+  const [newInfo,setNewInfo]=useState(null); // zuletzt angelegter MA + Code
 
   const load=useCallback(async()=>{
     const {data}=await db.from("employees").select("*").eq("practice_id",practice.id).order("created_at");
@@ -272,24 +288,29 @@ function FKApp({practice,setPractice}){
   return <div>
     <div className="card">
       <h2>{practice.name}</h2>
-      <p className="muted">Praxis-Code für Mitarbeiter: <span className="tag">{practice.join_code}</span> – diesen Code zusammen mit Name &amp; Zugangscode an Mitarbeiter geben.</p>
+      <p className="muted">Mitarbeiter melden sich an mit: <b>Praxisname</b> „{practice.name}" + ihrem <b>Namen</b> + ihrem persönlichen <b>Zugangscode</b> (siehe Tabelle unten).</p>
       <LogoBox practice={practice} setPractice={setPractice}/>
     </div>
     {err && <div className="err">{err}</div>}
+    {newInfo && <div className="ok">Mitarbeiter:in „{newInfo.name}" angelegt. <b>Zugangscode: {newInfo.code}</b> — bitte notieren und der Person geben (er bleibt dauerhaft gültig und ist hier in der Tabelle einsehbar).</div>}
     <div className="card">
       <h3>Mitarbeiter:innen</h3>
-      <AddEmployee onAdd={async(name,position,code)=>{
-        try{await callFn("create",{practice_id:practice.id,name,position,code});await load();}
-        catch(e){setErr(e.message);}}}/>
+      <AddEmployee onAdd={async(name,position)=>{
+        try{
+          const code=randCode();
+          await callFn("create",{practice_id:practice.id,name,position,code});
+          setNewInfo({name,code}); await load();
+        }catch(e){setErr(e.message);}}}/>
       <table style={{marginTop:12}}>
-        <thead><tr><th>Name</th><th>Position</th><th>Status</th><th></th></tr></thead>
+        <thead><tr><th>Name</th><th>Position</th><th>Zugangscode</th><th>Status</th><th></th></tr></thead>
         <tbody>{employees.map(e=>
           <tr key={e.id}>
             <td>{e.name}</td><td>{e.position||"–"}</td>
+            <td><span className="tag">{e.code||"–"}</span></td>
             <td>{e.active?"aktiv":"inaktiv"}</td>
             <td><button className="btn sm sec" onClick={()=>setSel(e)}>Öffnen</button></td>
           </tr>)}
-          {employees.length===0 && <tr><td colSpan="4" className="muted">Noch keine Mitarbeiter angelegt.</td></tr>}
+          {employees.length===0 && <tr><td colSpan="5" className="muted">Noch keine Mitarbeiter angelegt.</td></tr>}
         </tbody>
       </table>
     </div>
@@ -320,22 +341,22 @@ function LogoBox({practice,setPractice}){
 }
 
 function AddEmployee({onAdd}){
-  const [n,setN]=useState(""),[p,setP]=useState(""),[c,setC]=useState(randCode());
+  const [n,setN]=useState(""),[p,setP]=useState(""),[busy,setBusy]=useState(false);
   return <div className="grid2">
     <div><label>Name</label><input value={n} onChange={e=>setN(e.target.value)}/></div>
     <div><label>Position</label><input value={p} onChange={e=>setP(e.target.value)}/></div>
-    <div><label>Zugangscode</label>
-      <div className="row"><input value={c} onChange={e=>setC(e.target.value)}/>
-        <button className="btn sm sec" style={{flex:"0 0 auto"}} onClick={()=>setC(randCode())}>neu</button></div></div>
-    <div style={{display:"flex",alignItems:"flex-end"}}>
-      <button className="btn" onClick={()=>{if(n.trim()&&c.trim()){onAdd(n.trim(),p.trim(),c.trim());setN("");setP("");setC(randCode());}}}>Mitarbeiter anlegen</button>
+    <div style={{display:"flex",alignItems:"flex-end",gridColumn:"1 / -1"}}>
+      <button className="btn" disabled={busy} onClick={async()=>{
+        if(!n.trim())return; setBusy(true);
+        await onAdd(n.trim(),p.trim()); setN("");setP(""); setBusy(false);
+      }}>Mitarbeiter anlegen (Code wird automatisch erzeugt)</button>
     </div>
   </div>;
 }
 
 function EmployeeView({practice,employee,callFn,onBack,openCycle}){
   const [cycles,setCycles]=useState([]);
-  const [err,setErr]=useState(""),[code,setCode]=useState(randCode());
+  const [err,setErr]=useState("");
   const load=useCallback(async()=>{
     const {data}=await db.from("cycles").select("*").eq("employee_id",employee.id).order("created_at",{ascending:false});
     setCycles(data||[]);
@@ -354,13 +375,8 @@ function EmployeeView({practice,employee,callFn,onBack,openCycle}){
     <div className="card">
       <h2>{employee.name}</h2><p className="muted">{employee.position}</p>
       {err&&<div className="err">{err}</div>}
+      <p className="muted">Zugangscode (fest): <span className="tag">{employee.code||"–"}</span> — diesen Code zusammen mit dem Praxisnamen „{practice.name}" und dem Namen „{employee.name}" zur Anmeldung verwenden.</p>
       <div className="row" style={{marginTop:8}}>
-        <div><label>Zugangscode zurücksetzen</label>
-          <div className="row"><input value={code} onChange={e=>setCode(e.target.value)}/>
-            <button className="btn sm sec" style={{flex:"0 0 auto"}} onClick={()=>setCode(randCode())}>neu</button>
-            <button className="btn sm" style={{flex:"0 0 auto"}} onClick={async()=>{
-              try{await callFn("reset_code",{employee_id:employee.id,code});alert("Neuer Code gesetzt: "+code);}catch(e){setErr(e.message);}}}>setzen</button></div>
-        </div>
         <div style={{display:"flex",alignItems:"flex-end",gap:8}}>
           <button className="btn sm sec" onClick={async()=>{try{await callFn("set_active",{employee_id:employee.id,active:!employee.active});onBack();}catch(e){setErr(e.message);}}}>{employee.active?"Deaktivieren":"Aktivieren"}</button>
           <button className="btn sm danger" onClick={async()=>{if(confirm("Mitarbeiter und alle Bewertungen löschen?")){try{await callFn("delete",{employee_id:employee.id});onBack();}catch(e){setErr(e.message);}}}}>Löschen</button>
@@ -395,6 +411,7 @@ function CycleEditor({role,practice,employee,cycle,onBack,reloadCycle}){
   const [open,setOpen]=useState(0); const [tab,setTab]=useState("edit");
   const [err,setErr]=useState(""),[saved,setSaved]=useState("");
   const [status,setStatus]=useState(cycle.status);
+  const [customs,setCustoms]=useState([]); // eigene Kriterien (custom_items)
 
   // Schreibvorgänge pro Kriterium in Reihenfolge ausführen (keine Race-Conditions)
   function enqueue(table,k,row){
@@ -414,9 +431,27 @@ function CycleEditor({role,practice,employee,cycle,onBack,reloadCycle}){
     }
     const {data:md}=await db.from("ma_ratings").select("*").eq("cycle_id",cycle.id);
     const mm={};(md||[]).forEach(r=>mm[r.item_key]={b:r.b}); maRef.current=mm; setMa(mm);
+    const {data:cu}=await db.from("custom_items").select("*").eq("cycle_id",cycle.id).order("id");
+    setCustoms(cu||[]);
   })();},[cycle.id,isFK]);
 
   const maEditable = !isFK && status==="released";
+
+  async function addCustom(sectionName, criterion, description){
+    const key=uid();
+    const {data,error}=await db.from("custom_items")
+      .insert({cycle_id:cycle.id,item_key:key,section:sectionName,criterion,description:description||null,author:"fk"})
+      .select().single();
+    if(error){setErr(error.message);return;}
+    setCustoms(cs=>[...cs,data]);
+  }
+  async function delCustom(it){
+    if(!confirm("Eigenes Kriterium „"+it.k+"“ löschen?"))return;
+    await db.from("custom_items").delete().eq("id",it.id);
+    await db.from("fk_ratings").delete().eq("cycle_id",cycle.id).eq("item_key",it.key);
+    await db.from("ma_ratings").delete().eq("cycle_id",cycle.id).eq("item_key",it.key);
+    setCustoms(cs=>cs.filter(c=>c.id!==it.id));
+  }
 
   function saveFk(k,patch){
     const cur=fkRef.current[k]||{g:null,b:null}; const next={...cur,...patch};
@@ -434,7 +469,8 @@ function CycleEditor({role,practice,employee,cycle,onBack,reloadCycle}){
     if(error){setErr(error.message);return;} setStatus(s); if(reloadCycle)reloadCycle(data);
   }
 
-  const comp = computeAll(fk,ma);
+  const sections = buildSections(customs);
+  const comp = computeAll(sections, fk, ma);
 
   return <div>
     <button className="btn sm sec" onClick={onBack}>← Zurück</button>
@@ -448,7 +484,7 @@ function CycleEditor({role,practice,employee,cycle,onBack,reloadCycle}){
           {isFK && status==="locked" && <button className="btn sm sec" onClick={()=>setStatusTo("released")}>Wieder freigeben</button>}
           {isFK && (status==="locked"||status==="released") && <button className="btn sm" onClick={()=>setStatusTo("completed")}>Abschließen</button>}
           {isFK && status==="completed" && <button className="btn sm sec" onClick={()=>setStatusTo("locked")}>Wieder bearbeiten</button>}
-          {isFK && <button className="btn sm" onClick={()=>exportWord(practice,employee,cycle,comp,fk,ma)}>Word herunterladen</button>}
+          {isFK && <button className="btn sm" onClick={()=>exportWord(practice,employee,cycle,comp,fk,ma,sections)}>Word herunterladen</button>}
         </div>
       </div>
       {err&&<div className="err">{err}</div>}
@@ -460,32 +496,52 @@ function CycleEditor({role,practice,employee,cycle,onBack,reloadCycle}){
       </div>
     </div>
 
-    {tab==="edit" && CATALOG.map(([name,items],si)=>{
+    {tab==="edit" && sections.map((sec,si)=>{
       const sc=comp.sections[si];
       return <div key={si}>
         <div className="sec-head" onClick={()=>setOpen(open===si?-1:si)}>
-          <span>{name}</span><span className="muted">{sc.done}/{sc.total} · {open===si?"▲":"▼"}</span>
+          <span>{sec.name}</span><span className="muted">{sc.done}/{sc.total} · {open===si?"▲":"▼"}</span>
         </div>
         {open===si && <div className="card" style={{marginTop:4}}>
-          {items.map(([krit,besch],ii)=>{
-            const k=itemKey(si,ii); const f=fk[k]||{}; const mb=(ma[k]||{}).b;
-            return <div className="item" key={ii}>
-              <div style={{fontWeight:"bold"}}>{krit}</div>
-              {besch && <div className="muted" style={{marginBottom:6}}>{besch}</div>}
+          {sec.items.map((it)=>{
+            const k=it.key; const f=fk[k]||{}; const mb=(ma[k]||{}).b;
+            return <div className="item" key={k}>
+              <div style={{fontWeight:"bold"}}>{it.k}
+                {it.custom && <span className="muted" style={{fontWeight:"normal"}}> · eigenes Kriterium</span>}</div>
+              {it.d && <div className="muted" style={{marginBottom:6}}>{it.d}</div>}
               {isFK && <div className="grid2">
                 <div><label>Gewichtung (G)</label><Picker scale={G_SCALE} g value={f.g??null} onChange={v=>saveFk(k,{g:v})}/></div>
                 <div><label>Bewertung Führungskraft (B)</label><Picker scale={B_SCALE} value={f.b??null} onChange={v=>saveFk(k,{b:v})}/></div>
               </div>}
-              {isFK && <div className="muted" style={{marginTop:6}}>Selbsteinschätzung MA: <b>{mb??"–"}</b></div>}
+              {isFK && <div className="muted" style={{marginTop:6}}>Selbsteinschätzung MA: <b>{mb??"–"}</b>
+                {it.custom && <button className="btn sm danger" style={{marginLeft:10}} onClick={()=>delCustom(it)}>Kriterium löschen</button>}</div>}
               {!isFK && <div><label>Deine Selbsteinschätzung (1–5)</label>
                 <Picker scale={B_SCALE} value={mb??null} disabled={!maEditable} onChange={v=>saveMa(k,v)}/></div>}
             </div>;
           })}
+          {isFK && <AddCustom onAdd={(krit,besch)=>addCustom(sec.name,krit,besch)}/>}
         </div>}
       </div>;
     })}
 
     {tab==="eval" && isFK && <Eval comp={comp}/>}
+  </div>;
+}
+
+function AddCustom({onAdd}){
+  const [open,setOpen]=useState(false);
+  const [krit,setKrit]=useState(""),[besch,setBesch]=useState("");
+  if(!open) return <div style={{marginTop:10}}>
+    <button className="btn sm sec" onClick={()=>setOpen(true)}>+ Eigenes Kriterium in diesem Bereich hinzufügen</button></div>;
+  return <div className="item" style={{marginTop:10,background:"var(--teal-l)",borderRadius:8,padding:10}}>
+    <label>Neues Kriterium (Name)</label>
+    <input value={krit} onChange={e=>setKrit(e.target.value)} placeholder="z. B. Spezialaufgabe XY"/>
+    <label>Beschreibung (optional)</label>
+    <input value={besch} onChange={e=>setBesch(e.target.value)}/>
+    <div className="row" style={{marginTop:8}}>
+      <button className="btn sm" onClick={()=>{if(krit.trim()){onAdd(krit.trim(),besch.trim());setKrit("");setBesch("");setOpen(false);}}}>Hinzufügen</button>
+      <button className="btn sm sec" onClick={()=>{setOpen(false);setKrit("");setBesch("");}}>Abbrechen</button>
+    </div>
   </div>;
 }
 
@@ -506,14 +562,14 @@ function Eval({comp}){
 
 /* ---------- MA Login ---------- */
 function MALogin({onBack,onReady}){
-  const [jc,setJc]=useState(""),[name,setName]=useState(""),[code,setCode]=useState("");
+  const [pname,setPname]=useState(""),[name,setName]=useState(""),[code,setCode]=useState("");
   const [err,setErr]=useState(""),[busy,setBusy]=useState(false);
   async function go(){
     setErr("");setBusy(true);
     try{
       const r=await fetch(FN_BASE+"/employee-login",{method:"POST",
         headers:{Authorization:"Bearer "+CFG.SUPABASE_ANON_KEY,"Content-Type":"application/json"},
-        body:JSON.stringify({join_code:jc,name,code})});
+        body:JSON.stringify({practice_name:pname,name,code})});
       const j=await r.json();
       if(!r.ok)throw new Error(j.error||"Login fehlgeschlagen");
       await db.auth.setSession({access_token:j.access_token,refresh_token:j.refresh_token});
@@ -525,8 +581,8 @@ function MALogin({onBack,onReady}){
     <div className="card">
       <h2>Mitarbeiter-Anmeldung</h2>
       {err&&<div className="err">{err}</div>}
-      <label>Praxis-Code</label><input value={jc} onChange={e=>setJc(e.target.value.toUpperCase())} placeholder="z. B. AB12CD"/>
-      <label>Name</label><input value={name} onChange={e=>setName(e.target.value)}/>
+      <label>Praxisname</label><input value={pname} onChange={e=>setPname(e.target.value)} placeholder="Name der Praxis"/>
+      <label>Dein Name</label><input value={name} onChange={e=>setName(e.target.value)}/>
       <label>Zugangscode</label><input value={code} onChange={e=>setCode(e.target.value)}/>
       <div style={{marginTop:14}}><button className="btn" disabled={busy} onClick={go}>Anmelden</button></div>
     </div>
@@ -555,24 +611,24 @@ function MAApp({employee}){
 }
 
 /* ---------- Word-Export ---------- */
-function exportWord(practice,employee,cycle,comp,fk,ma){
+function exportWord(practice,employee,cycle,comp,fk,ma,sections){
   const esc=s=>(s==null?"":String(s)).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
   let body="";
-  CATALOG.forEach(([name,items],si)=>{
-    body+=`<h2 style="color:#07697A">${esc(name)}</h2>`;
+  (sections||buildSections([])).forEach((sec)=>{
+    body+=`<h2 style="color:#07697A">${esc(sec.name)}</h2>`;
     body+=`<table border="1" cellspacing="0" cellpadding="4" style="border-collapse:collapse;width:100%;font-size:10pt">
       <tr style="background:#e3f0f2;color:#07697A">
         <th>Kriterium</th><th>Beschreibung</th><th>G</th><th>B&nbsp;MA</th><th>B&nbsp;FK</th><th>Nutzwert&nbsp;FK</th><th>Übereinst.</th></tr>`;
-    items.forEach(([krit,besch],ii)=>{
-      const k=itemKey(si,ii); const f=fk[k]||{}; const mb=(ma[k]||{}).b;
+    sec.items.forEach((it)=>{
+      const k=it.key; const f=fk[k]||{}; const mb=(ma[k]||{}).b;
       const ag=(f.b&&mb)?Math.round((1-Math.abs(mb-f.b)/5)*100)+" %":"–";
-      body+=`<tr><td>${esc(krit)}</td><td>${esc(besch)}</td><td align="center">${f.g??"–"}</td>
+      body+=`<tr><td>${esc(it.k)}</td><td>${esc(it.d)}</td><td align="center">${f.g??"–"}</td>
         <td align="center">${mb??"–"}</td><td align="center">${f.b??"–"}</td>
         <td align="center">${(f.g&&f.b)?f.g*f.b:"–"}</td><td align="center">${ag}</td></tr>`;
     });
     body+="</table><br/>";
   });
-  let eval_="<h2 style='color:#07697A'>Gesamtauswertung</h2><table border='1' cellspacing='0' cellpadding='4' style='border-collapse:collapse;width:100%;font-size:10pt'><tr style='background:#e3f0f2;color:#07697A'><th>Bereich</th><th>Max.</th><th>MA</th><th>FK</th><th>Ø</th><th>Übereinst.</th></tr>";
+  let eval_="<h2 style='color:#07697A'>Gesamtauswertung je Bereich</h2><table border='1' cellspacing='0' cellpadding='4' style='border-collapse:collapse;width:100%;font-size:10pt'><tr style='background:#e3f0f2;color:#07697A'><th>Bereich</th><th>Max.&nbsp;Punktzahl</th><th>Erreicht&nbsp;MA</th><th>Erreicht&nbsp;FK</th><th>Ø&nbsp;(MA+FK)/2</th><th>Übereinst.&nbsp;%</th></tr>";
   comp.sections.forEach(s=>{eval_+=`<tr><td>${esc(s.name)}</td><td align='center'>${s.max}</td><td align='center'>${s.nMa}</td><td align='center'>${s.nFk}</td><td align='center'>${fmt1((s.nMa+s.nFk)/2)}</td><td align='center'>${pct(s.agree)}</td></tr>`;});
   eval_+=`<tr style='font-weight:bold;background:#e3f0f2'><td>GESAMT</td><td align='center'>${comp.tot.max}</td><td align='center'>${comp.tot.nMa}</td><td align='center'>${comp.tot.nFk}</td><td align='center'>${fmt1((comp.tot.nMa+comp.tot.nFk)/2)}</td><td align='center'>${pct(comp.tot.agree)}</td></tr></table><br/>`;
 
