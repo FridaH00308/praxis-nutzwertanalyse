@@ -862,6 +862,21 @@ function CycleEditor({role,practice,employee,cycle,onBack,reloadCycle}){
     },60);
   }
 
+  // Erste noch offene (unbeantwortete) Stelle in Reihenfolge suchen.
+  // Scannt alle Kriterien der Reihe nach, überspringt beantwortete und
+  // liefert die erste Lücke – funktioniert also auch, wenn man Stellen ausgelassen hat.
+  function firstOpen(secs){
+    for(let si=0; si<secs.length; si++){
+      for(const it of secs[si].items){
+        const done = isFK
+          ? (()=>{const f=fk[it.key]||{}; return f.g!=null||f.b!=null;})()
+          : ((ma[it.key]||{}).b!=null);
+        if(!done) return {section_index:si, item_key:it.key};
+      }
+    }
+    return null; // alles beantwortet
+  }
+
   if(!catalog) return <div className="center"><p className="muted">Lädt…</p></div>;
   const sections = buildSections(catalog, customs);
   const comp = computeAll(sections, fk, ma);
@@ -876,6 +891,8 @@ function CycleEditor({role,practice,employee,cycle,onBack,reloadCycle}){
   const progPct = totalItems? Math.round(doneItems/totalItems*100) : 0;
 
   const resumeSecName = resume!=null && sections[resume.section_index] ? sections[resume.section_index].name : null;
+  const nextOpen = firstOpen(sections);
+  const nextOpenSecName = nextOpen ? sections[nextOpen.section_index].name : null;
 
   return <div>
     <button className="btn sm sec" onClick={onBack}>← Zurück</button>
@@ -900,9 +917,9 @@ function CycleEditor({role,practice,employee,cycle,onBack,reloadCycle}){
         <div className="bar"><i style={{width:progPct+"%"}}></i></div>
         <span className="txt">{doneItems}/{totalItems} bearbeitet ({progPct} %)</span>
       </div>}
-      {tab==="edit" && resume && resumeSecName &&
+      {tab==="edit" && nextOpen &&
         <div style={{marginTop:8}}>
-          <button className="btn sm sec" onClick={()=>jumpTo(resume.section_index,resume.item_key)}>▶ Weiter, wo Sie waren · {resumeSecName}</button>
+          <button className="btn sm sec" onClick={()=>jumpTo(nextOpen.section_index,nextOpen.item_key)}>↷ Zur nächsten offenen Stelle · {nextOpenSecName}</button>
         </div>}
 
       <div className="row" style={{marginTop:10}}>
@@ -1188,9 +1205,11 @@ async function exportWord(practice,employee,cycle,comp,fk,ma,sections){
   comp.sections.forEach(s=>{eval_+=`<tr><td>${esc(s.name)}</td><td align='center'>${s.max}</td><td align='center'>${s.nMa}</td><td align='center'>${s.nFk}</td><td align='center'>${fmt1((s.nMa+s.nFk)/2)}</td><td align='center'>${pct(s.agree)}</td></tr>`;});
   eval_+=`<tr style='font-weight:bold;background:${BRAND_L}'><td>GESAMT</td><td align='center'>${comp.tot.max}</td><td align='center'>${comp.tot.nMa}</td><td align='center'>${comp.tot.nFk}</td><td align='center'>${fmt1((comp.tot.nMa+comp.tot.nFk)/2)}</td><td align='center'>${pct(comp.tot.agree)}</td></tr></table><br/>`;
 
+  const durl=await logoDataUrl();
+  const logoCell=durl?`<td style="border:none;text-align:right;vertical-align:top;padding:0"><img src="${durl}" style="height:20px"/></td>`:"";
   const html=`<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word'>
   <head><meta charset="utf-8"><style>body{font-family:Arial;font-size:10pt;color:#222}h1{color:${BRAND};font-size:17pt;margin:0 0 6pt}h2{color:${BRAND};font-size:12pt;margin:14pt 0 4pt}p{font-size:10pt}table{font-size:9pt}</style></head>
-  <body><h1>Stärken- &amp; Kompetenzprofil</h1>
+  <body><table style="width:100%;border:none;border-collapse:collapse"><tr><td style="border:none;vertical-align:top;padding:0"><h1>Stärken- &amp; Kompetenzprofil</h1></td>${logoCell}</tr></table>
   <p><b>Praxis:</b> ${esc(practice.name)}<br/><b>Mitarbeiter:in:</b> ${esc(employee?employee.name:"")}<br/>
   <b>Beurteilung:</b> ${esc(cycle.title||"")}<br/><b>Zeitraum:</b> ${esc(cycle.period||"")}</p>
   ${eval_}${body}</body></html>`;
