@@ -1172,7 +1172,7 @@ async function exportWord(practice,employee,cycle,comp,fk,ma,sections){
   let body="";
   (sections||[]).forEach((sec)=>{
     body+=`<h2 style="color:${BRAND}">${esc(sec.name)}</h2>`;
-    body+=`<table border="1" cellspacing="0" cellpadding="4" style="border-collapse:collapse;width:100%;font-size:10pt">
+    body+=`<table border="1" cellspacing="0" cellpadding="3" style="border-collapse:collapse;width:100%;font-size:9pt">
       <tr style="background:${BRAND_L};color:${BRAND}">
         <th>Kriterium</th><th>Beschreibung</th><th>G</th><th>B&nbsp;MA</th><th>B&nbsp;FK</th><th>Nutzwert&nbsp;FK</th><th>Übereinst.</th></tr>`;
     sec.items.forEach((it)=>{
@@ -1184,14 +1184,14 @@ async function exportWord(practice,employee,cycle,comp,fk,ma,sections){
     });
     body+="</table><br/>";
   });
-  let eval_=`<h2 style='color:${BRAND}'>Gesamtauswertung je Bereich</h2><table border='1' cellspacing='0' cellpadding='4' style='border-collapse:collapse;width:100%;font-size:10pt'><tr style='background:${BRAND_L};color:${BRAND}'><th>Bereich</th><th>Max.&nbsp;Punktzahl</th><th>Erreicht&nbsp;MA</th><th>Erreicht&nbsp;FK</th><th>Ø&nbsp;(MA+FK)/2</th><th>Übereinst.&nbsp;%</th></tr>`;
+  let eval_=`<h2 style='color:${BRAND}'>Gesamtauswertung je Bereich</h2><table border='1' cellspacing='0' cellpadding='3' style='border-collapse:collapse;width:100%;font-size:9pt'><tr style='background:${BRAND_L};color:${BRAND}'><th>Bereich</th><th>Max.&nbsp;Punktzahl</th><th>Erreicht&nbsp;MA</th><th>Erreicht&nbsp;FK</th><th>Ø&nbsp;(MA+FK)/2</th><th>Übereinst.&nbsp;%</th></tr>`;
   comp.sections.forEach(s=>{eval_+=`<tr><td>${esc(s.name)}</td><td align='center'>${s.max}</td><td align='center'>${s.nMa}</td><td align='center'>${s.nFk}</td><td align='center'>${fmt1((s.nMa+s.nFk)/2)}</td><td align='center'>${pct(s.agree)}</td></tr>`;});
   eval_+=`<tr style='font-weight:bold;background:${BRAND_L}'><td>GESAMT</td><td align='center'>${comp.tot.max}</td><td align='center'>${comp.tot.nMa}</td><td align='center'>${comp.tot.nFk}</td><td align='center'>${fmt1((comp.tot.nMa+comp.tot.nFk)/2)}</td><td align='center'>${pct(comp.tot.agree)}</td></tr></table><br/>`;
 
   const durl=await logoDataUrl();
-  const logo=durl?`<img src="${durl}" style="height:52px"/><br/><br/>`:"";
+  const logo=durl?`<img src="${durl}" style="height:44px"/><br/><br/>`:"";
   const html=`<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word'>
-  <head><meta charset="utf-8"><style>body{font-family:Arial}h1{color:${BRAND};font-size:22pt}h2{font-size:13pt}</style></head>
+  <head><meta charset="utf-8"><style>body{font-family:Arial;font-size:10pt;color:#222}h1{color:${BRAND};font-size:17pt;margin:0 0 6pt}h2{color:${BRAND};font-size:12pt;margin:14pt 0 4pt}p{font-size:10pt}table{font-size:9pt}</style></head>
   <body>${logo}<h1>Stärken- &amp; Kompetenzprofil</h1>
   <p><b>Praxis:</b> ${esc(practice.name)}<br/><b>Mitarbeiter:in:</b> ${esc(employee?employee.name:"")}<br/>
   <b>Beurteilung:</b> ${esc(cycle.title||"")}<br/><b>Zeitraum:</b> ${esc(cycle.period||"")}</p>
