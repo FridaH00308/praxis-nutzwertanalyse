@@ -1188,11 +1188,9 @@ async function exportWord(practice,employee,cycle,comp,fk,ma,sections){
   comp.sections.forEach(s=>{eval_+=`<tr><td>${esc(s.name)}</td><td align='center'>${s.max}</td><td align='center'>${s.nMa}</td><td align='center'>${s.nFk}</td><td align='center'>${fmt1((s.nMa+s.nFk)/2)}</td><td align='center'>${pct(s.agree)}</td></tr>`;});
   eval_+=`<tr style='font-weight:bold;background:${BRAND_L}'><td>GESAMT</td><td align='center'>${comp.tot.max}</td><td align='center'>${comp.tot.nMa}</td><td align='center'>${comp.tot.nFk}</td><td align='center'>${fmt1((comp.tot.nMa+comp.tot.nFk)/2)}</td><td align='center'>${pct(comp.tot.agree)}</td></tr></table><br/>`;
 
-  const durl=await logoDataUrl();
-  const logo=durl?`<p align="right" style="margin:0 0 4pt"><img src="${durl}" style="height:26px"/></p>`:"";
   const html=`<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word'>
   <head><meta charset="utf-8"><style>body{font-family:Arial;font-size:10pt;color:#222}h1{color:${BRAND};font-size:17pt;margin:0 0 6pt}h2{color:${BRAND};font-size:12pt;margin:14pt 0 4pt}p{font-size:10pt}table{font-size:9pt}</style></head>
-  <body>${logo}<h1>Stärken- &amp; Kompetenzprofil</h1>
+  <body><h1>Stärken- &amp; Kompetenzprofil</h1>
   <p><b>Praxis:</b> ${esc(practice.name)}<br/><b>Mitarbeiter:in:</b> ${esc(employee?employee.name:"")}<br/>
   <b>Beurteilung:</b> ${esc(cycle.title||"")}<br/><b>Zeitraum:</b> ${esc(cycle.period||"")}</p>
   ${eval_}${body}</body></html>`;
