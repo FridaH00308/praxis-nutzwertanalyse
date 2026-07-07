@@ -1184,6 +1184,24 @@ async function logoDataUrl(){
   }catch(e){ return ""; }
 }
 
+// Word ignoriert Größen-Angaben (CSS wie auch width/height) bei eingebetteten Bildern
+// und zeigt sie in ihrer NATIVEN Pixelgröße an (1500px → riesig). Deshalb rechnen wir
+// das Logo per Canvas physisch auf die Zielgröße herunter und betten diese kleine
+// Version ein – so wird es in Word zwangsläufig klein dargestellt.
+async function logoScaledDataUrl(targetW, targetH){
+  try{
+    const durl=await logoDataUrl();
+    if(!durl) return "";
+    const img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=durl;});
+    const c=document.createElement("canvas"); c.width=targetW; c.height=targetH;
+    const ctx=c.getContext("2d");
+    ctx.imageSmoothingEnabled=true; ctx.imageSmoothingQuality="high";
+    ctx.clearRect(0,0,targetW,targetH);
+    ctx.drawImage(img,0,0,targetW,targetH);
+    return c.toDataURL("image/png");
+  }catch(e){ return ""; }
+}
+
 async function exportWord(practice,employee,cycle,comp,fk,ma,sections){
   const esc=s=>(s==null?"":String(s)).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
   let body="";
@@ -1205,10 +1223,9 @@ async function exportWord(practice,employee,cycle,comp,fk,ma,sections){
   comp.sections.forEach(s=>{eval_+=`<tr><td>${esc(s.name)}</td><td align='center'>${s.max}</td><td align='center'>${s.nMa}</td><td align='center'>${s.nFk}</td><td align='center'>${fmt1((s.nMa+s.nFk)/2)}</td><td align='center'>${pct(s.agree)}</td></tr>`;});
   eval_+=`<tr style='font-weight:bold;background:${BRAND_L}'><td>GESAMT</td><td align='center'>${comp.tot.max}</td><td align='center'>${comp.tot.nMa}</td><td align='center'>${comp.tot.nFk}</td><td align='center'>${fmt1((comp.tot.nMa+comp.tot.nFk)/2)}</td><td align='center'>${pct(comp.tot.agree)}</td></tr></table><br/>`;
 
-  const durl=await logoDataUrl();
-  // Word ignoriert CSS-Höhe bei Bildern – daher die HTML-Attribute width/height nutzen.
-  // Logo ~24px hoch (≈ Höhe der 17pt-Überschrift), Seitenverhältnis 1500:199 → Breite 181.
-  const logoCell=durl?`<td style="border:none;text-align:right;vertical-align:middle;padding:0"><img src="${durl}" width="181" height="24" style="width:181px;height:24px"/></td>`:"";
+  // Logo physisch klein gerendert (≈ Höhe der 17pt-Überschrift), Seitenverhältnis 1500:199.
+  const durl=await logoScaledDataUrl(226,30);
+  const logoCell=durl?`<td style="border:none;text-align:right;vertical-align:middle;padding:0"><img src="${durl}"/></td>`:"";
   const html=`<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word'>
   <head><meta charset="utf-8"><style>body{font-family:Arial;font-size:10pt;color:#222}h1{color:${BRAND};font-size:17pt;margin:0 0 6pt}h2{color:${BRAND};font-size:12pt;margin:14pt 0 4pt}p{font-size:10pt}table{font-size:9pt}</style></head>
   <body><table style="width:100%;border:none;border-collapse:collapse"><tr><td style="border:none;vertical-align:top;padding:0"><h1>Stärken- &amp; Kompetenzprofil</h1></td>${logoCell}</tr></table>
