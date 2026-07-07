@@ -3,51 +3,67 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Stärken- &amp; Kompetenzprofil – Praxis</title>
+<title>Stärken- &amp; Kompetenzprofil – Paul | Zahnärzte</title>
+<link rel="icon" href="logo-paul.png" />
 <style>
-  :root{ --teal:#07697A; --teal-d:#054e5b; --teal-l:#e3f0f2; --ink:#1f2a2d; --mut:#5d6b6e;
-         --line:#d7e0e1; --bg:#f4f7f7; --ok:#2e7d57; --warn:#c0563d; --gold:#cdb14a; }
+  /* Markenfarben Zahnarztpraxis Paul (aus Logo abgeleitet) */
+  :root{ --brand:#902538; --brand-d:#6f1c2b; --brand-l:#f6e9ec; --brand-ll:#fbf4f5;
+         --ink:#241a1d; --mut:#6b5f62; --line:#e3d7da; --bg:#f6f3f4;
+         --ok:#2e7d57; --warn:#b23b2a; }
   *{box-sizing:border-box}
   body{margin:0;font-family:Arial,Helvetica,sans-serif;color:var(--ink);background:var(--bg);font-size:15px}
-  a{color:var(--teal)}
+  a{color:var(--brand)}
   .wrap{max-width:1000px;margin:0 auto;padding:18px}
-  .topbar{background:var(--teal);color:#fff;padding:12px 18px;display:flex;align-items:center;justify-content:space-between}
-  .topbar .ttl{font-size:18px;font-weight:bold}
-  .btn{background:var(--teal);color:#fff;border:none;border-radius:8px;padding:9px 14px;font-size:14px;cursor:pointer;font-family:inherit}
-  .btn:hover{background:var(--teal-d)}
-  .btn.sec{background:#fff;color:var(--teal);border:1px solid var(--teal)}
+  .topbar{background:var(--brand);color:#fff;padding:10px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .brand{display:flex;align-items:center;gap:12px;min-width:0}
+  .brand img{height:26px;width:auto;display:block}
+  .brand .sub{font-size:13px;color:#ffffffcc;border-left:1px solid #ffffff55;padding-left:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  @media(max-width:560px){.brand .sub{display:none}}
+  .btn{background:var(--brand);color:#fff;border:none;border-radius:8px;padding:9px 14px;font-size:14px;cursor:pointer;font-family:inherit}
+  .btn:hover{background:var(--brand-d)}
+  .btn.sec{background:#fff;color:var(--brand);border:1px solid var(--brand)}
+  .btn.sec:hover{background:var(--brand-l)}
   .btn.ghost{background:transparent;color:#fff;border:1px solid #ffffff66}
+  .btn.ghost:hover{background:#ffffff1f}
   .btn.danger{background:var(--warn)}
   .btn.sm{padding:5px 9px;font-size:13px;border-radius:6px}
   .btn:disabled{opacity:.5;cursor:not-allowed}
   .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px;margin:14px 0;box-shadow:0 1px 2px #0000000a}
-  .center{max-width:440px;margin:40px auto}
-  h1,h2,h3{color:var(--teal)} h1{font-size:26px;margin:.2em 0}
+  .center{max-width:460px;margin:34px auto}
+  h1,h2,h3{color:var(--brand)} h1{font-size:26px;margin:.2em 0}
   label{display:block;font-size:13px;color:var(--mut);margin:10px 0 4px}
-  input,select,textarea{width:100%;padding:9px;border:1px solid var(--line);border-radius:8px;font-size:15px;font-family:inherit}
+  input,select,textarea{width:100%;padding:9px;border:1px solid var(--line);border-radius:8px;font-size:15px;font-family:inherit;background:#fff}
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--brand-l);border-color:var(--brand)}
   .row{display:flex;gap:10px;flex-wrap:wrap}
   .row>*{flex:1}
   .pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:bold}
   .pill.draft{background:#eee;color:#555}.pill.released{background:#dff0e6;color:var(--ok)}
-  .pill.locked{background:#fbe6df;color:var(--warn)}.pill.completed{background:var(--teal-l);color:var(--teal)}
+  .pill.locked{background:#fbe6df;color:var(--warn)}.pill.completed{background:var(--brand-l);color:var(--brand)}
   .err{background:#fbe6df;color:var(--warn);padding:9px;border-radius:8px;margin:8px 0;font-size:14px}
   .ok{background:#dff0e6;color:var(--ok);padding:9px;border-radius:8px;margin:8px 0;font-size:14px}
   .muted{color:var(--mut);font-size:13px}
   table{width:100%;border-collapse:collapse;font-size:14px}
   th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
-  th{background:var(--teal-l);color:var(--teal)}
-  .sec-head{display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:10px 12px;background:var(--teal-l);
-            border:1px solid var(--line);border-radius:8px;margin-top:8px;font-weight:bold;color:var(--teal)}
+  th{background:var(--brand-l);color:var(--brand)}
+  .sec-head{display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:10px 12px;background:var(--brand-l);
+            border:1px solid var(--line);border-radius:8px;margin-top:8px;font-weight:bold;color:var(--brand)}
   .scale{display:flex;gap:4px;flex-wrap:wrap}
   .sbtn{border:1px solid var(--line);background:#fff;border-radius:6px;padding:5px 9px;cursor:pointer;font-size:13px;min-width:34px;text-align:center}
-  .sbtn.on{background:var(--teal);color:#fff;border-color:var(--teal)}
+  .sbtn.on{background:var(--brand);color:#fff;border-color:var(--brand)}
   .sbtn.g0.on{background:#9aa5a1;border-color:#9aa5a1}
   .item{border-bottom:1px solid var(--line);padding:10px 4px}
   .item:last-child{border-bottom:none}
-  .logo-prev{max-height:60px;max-width:180px;border:1px solid var(--line);border-radius:6px;padding:4px;background:#fff}
-  .tag{font-family:monospace;background:var(--teal-l);color:var(--teal);padding:2px 8px;border-radius:6px;font-weight:bold;letter-spacing:1px}
+  .item.hl{background:var(--brand-ll);border-radius:8px}
+  .tag{font-family:monospace;background:var(--brand-l);color:var(--brand);padding:2px 8px;border-radius:6px;font-weight:bold;letter-spacing:1px}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   @media(max-width:640px){.grid2{grid-template-columns:1fr}}
+  /* Fortschrittsbalken */
+  .prog{display:flex;align-items:center;gap:10px;margin-top:10px}
+  .prog .bar{flex:1;height:9px;background:var(--brand-l);border-radius:999px;overflow:hidden}
+  .prog .bar>i{display:block;height:100%;background:var(--brand);border-radius:999px;transition:width .3s}
+  .prog .txt{font-size:13px;color:var(--mut);white-space:nowrap}
+  /* Home-Logo */
+  .home-logo{display:block;margin:0 auto 14px;max-width:260px;width:70%;height:auto}
 </style>
 </head>
 <body>
@@ -80,6 +96,9 @@ const db = supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY, {
 });
 const CATALOG = window.CATALOG, G_SCALE = window.G_SCALE, B_SCALE = window.B_SCALE;
 const FN_BASE = (CFG.SUPABASE_URL || "") + "/functions/v1";
+const BRAND = "#902538", BRAND_L = "#f6e9ec";
+const LOGO_URL = "logo-paul.png";          // Burgunder-Logo (helle Flächen, Word)
+const LOGO_WHITE_URL = "logo-paul-white.png"; // weißes Logo (Header-Balken)
 
 /* ---------- Hilfen ---------- */
 const itemKey = (si, ii) => si + "_" + ii;
@@ -88,16 +107,52 @@ const randCode = (n=6)=>{const c="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";let s="";for
 const fmt1 = x => x==null?"–":(Math.round(x*10)/10).toString().replace(".",",");
 const pct = x => x==null?"–":Math.round(x*100)+" %";
 
-// Festen Katalog mit den eigenen (von der FK ergänzten) Kriterien zusammenführen.
-// customs: Zeilen aus der Tabelle custom_items. Jede gehört per "section" zu einem Bereich.
-function buildSections(customs){
+// Selbstverwaltung des Mitarbeiters (Passwort/E-Mail) über die Edge-Function.
+async function callSelf(action,payload){
+  const {data:{session}}=await db.auth.getSession();
+  if(!session) throw new Error("Nicht angemeldet.");
+  const r=await fetch(FN_BASE+"/employee-self",{method:"POST",
+    headers:{Authorization:"Bearer "+session.access_token,"Content-Type":"application/json"},
+    body:JSON.stringify({action,...payload})});
+  const j=await r.json(); if(!r.ok)throw new Error(j.error||"Fehler"); return j;
+}
+
+// Praxis-Katalog (aus DB) mit den eigenen (pro Zyklus ergänzten) Kriterien zusammenführen.
+// catalog: [{id,name,items:[{item_key,criterion,description,id}]}] – aus loadCatalog().
+// customs: Zeilen aus custom_items. Jede gehört per "section" (Name) zu einem Bereich.
+function buildSections(catalog, customs){
   const byName={};
   (customs||[]).forEach(c=>{(byName[c.section]=byName[c.section]||[]).push(c);});
-  return CATALOG.map(([name, items], si)=>{
-    const base=items.map(([k,d],ii)=>({key:itemKey(si,ii), k, d, custom:false}));
-    const extra=(byName[name]||[]).map(c=>({key:c.item_key, k:c.criterion, d:c.description||"", custom:true, id:c.id}));
-    return {name, si, items:base.concat(extra)};
+  return (catalog||[]).map((sec, si)=>{
+    const base=sec.items.map(it=>({key:it.item_key, k:it.criterion, d:it.description||"", custom:false}));
+    const extra=(byName[sec.name]||[]).map(c=>({key:c.item_key, k:c.criterion, d:c.description||"", custom:true, id:c.id, author:c.author}));
+    return {name:sec.name, si, items:base.concat(extra)};
   });
+}
+
+// Praxis-Katalog aus der Datenbank laden (Bereiche + Kriterien, in Reihenfolge).
+async function loadCatalog(practiceId){
+  const {data:secs}=await db.from("catalog_sections").select("*").eq("practice_id",practiceId).order("sort_order");
+  const {data:items}=await db.from("catalog_items").select("*").eq("practice_id",practiceId).order("sort_order");
+  const bySec={}; (items||[]).forEach(i=>{(bySec[i.section_id]=bySec[i.section_id]||[]).push(i);});
+  return (secs||[]).map(s=>({id:s.id, name:s.name,
+    items:(bySec[s.id]||[]).map(i=>({item_key:i.item_key, criterion:i.criterion, description:i.description, id:i.id, sort_order:i.sort_order}))}));
+}
+
+// Beim ersten Mal den Katalog aus der Standardliste (window.CATALOG) vorbefüllen.
+// item_key = "si_ii" bleibt kompatibel mit bereits erfassten Bewertungen.
+async function seedCatalogIfEmpty(practiceId){
+  const {count}=await db.from("catalog_sections").select("id",{count:"exact",head:true}).eq("practice_id",practiceId);
+  if(count && count>0) return;
+  const secRows=CATALOG.map(([name],si)=>({practice_id:practiceId,name,sort_order:si}));
+  const {data:secs,error}=await db.from("catalog_sections").insert(secRows).select();
+  if(error||!secs) return;
+  const byOrder={}; secs.forEach(s=>{byOrder[s.sort_order]=s.id;});
+  const itemRows=[];
+  CATALOG.forEach(([name,items],si)=>items.forEach(([k,d],ii)=>{
+    itemRows.push({practice_id:practiceId,section_id:byOrder[si],item_key:itemKey(si,ii),criterion:k,description:d||null,sort_order:ii});
+  }));
+  if(itemRows.length) await db.from("catalog_items").insert(itemRows);
 }
 
 function computeAll(sectionsDef, fk, ma){
@@ -138,6 +193,14 @@ function App(){
   const [view,setView]=useState("home"); // home|fkAuth|fk|maLogin|ma
   const [practice,setPractice]=useState(null);
   const [employee,setEmployee]=useState(null);
+  const [recovery,setRecovery]=useState(false); // Passwort-Zurücksetzen über E-Mail-Link
+
+  useEffect(()=>{
+    // Reset-Link erkennen (Event kann beim Laden schon gefeuert haben).
+    if(/type=recovery/.test(window.location.hash||"")) setRecovery(true);
+    const {data:sub}=db.auth.onAuthStateChange((event)=>{ if(event==="PASSWORD_RECOVERY") setRecovery(true); });
+    return ()=>{ try{sub.subscription.unsubscribe();}catch(e){} };
+  },[]);
 
   const detect = useCallback(async ()=>{
     const {data:{session}} = await db.auth.getSession();
@@ -154,22 +217,28 @@ function App(){
   async function logout(){ await db.auth.signOut(); setPractice(null); setEmployee(null); setView("home"); }
 
   if(!CFG.SUPABASE_URL || CFG.SUPABASE_URL.includes("DEINPROJEKT")){
-    return <div className="center card"><h2>Fast fertig</h2><p>Bitte trage in <b>config.js</b> deine Supabase-Daten ein (siehe README, Schritt 2).</p></div>;
+    return <div className="center card"><h2>Fast fertig</h2><p>Bitte tragen Sie in <b>config.js</b> Ihre Supabase-Daten ein (siehe README, Schritt 2).</p></div>;
   }
+  if(recovery) return <RecoveryReset onDone={()=>{setRecovery(false);detect();}}/>;
   if(boot) return <div className="center"><p className="muted">Lädt…</p></div>;
 
   return <div>
     <div className="topbar">
-      <div className="ttl">Stärken- &amp; Kompetenzprofil</div>
+      <div className="brand">
+        <img src={LOGO_WHITE_URL} alt="Paul | Zahnärzte"/>
+        <span className="sub">Stärken- &amp; Kompetenzprofil</span>
+      </div>
       <div>{(view==="fk"||view==="ma") &&
-        <button className="btn ghost" onClick={logout}>Abmelden</button>}</div>
+        <button className="btn ghost btn sm" onClick={logout}>Abmelden</button>}</div>
     </div>
     <div className="wrap">
       {view==="home" && <Home onFK={()=>setView("fkAuth")} onMA={()=>setView("maLogin")}/>}
       {view==="fkAuth" && <FKAuth onBack={()=>setView("home")} onReady={p=>{setPractice(p);setView("fk");}}/>}
       {view==="fk" && practice && <FKApp practice={practice} setPractice={setPractice}/>}
       {view==="maLogin" && <MALogin onBack={()=>setView("home")} onReady={()=>detect()}/>}
-      {view==="ma" && employee && <MAApp employee={employee}/>}
+      {view==="ma" && employee && (employee.must_change_pw
+        ? <FirstLoginSetup employee={employee} onDone={()=>detect()}/>
+        : <MAApp employee={employee} reloadEmployee={()=>detect()}/>)}
     </div>
   </div>;
 }
@@ -178,8 +247,9 @@ function App(){
 function Home({onFK,onMA}){
   return <div className="center">
     <div className="card" style={{textAlign:"center"}}>
-      <h1>Willkommen</h1>
-      <p className="muted">Bewertung von Wissensstand und Entwicklungspotenzial in der Praxis.</p>
+      <img className="home-logo" src={LOGO_URL} alt="Paul | Zahnärzte"/>
+      <h1>Stärken- &amp; Kompetenzprofil</h1>
+      <p className="muted">Bewertung von Wissensstand und Entwicklungspotenzial im Team der Zahnarztpraxis Paul.</p>
       <div style={{display:"flex",flexDirection:"column",gap:10,marginTop:18}}>
         <button className="btn" onClick={onFK}>Als Führungskraft anmelden</button>
         <button className="btn sec" onClick={onMA}>Als Mitarbeiter:in anmelden</button>
@@ -239,6 +309,7 @@ function FKAuth({onBack,onReady}){
   return <div className="center">
     <button className="btn sm sec" onClick={onBack}>← Zurück</button>
     <div className="card">
+      <h2 style={{marginTop:0}}>Führungskraft</h2>
       <div className="row" style={{marginBottom:8}}>
         <button className={"btn sm "+(tab==="login"?"":"sec")} onClick={()=>setTab("login")}>Anmelden</button>
         <button className={"btn sm "+(tab==="register"?"":"sec")} onClick={()=>setTab("register")}>Registrieren</button>
@@ -261,16 +332,25 @@ function FKAuth({onBack,onReady}){
 /* ---------- FK App ---------- */
 function FKApp({practice,setPractice}){
   const [employees,setEmployees]=useState([]);
+  const [presets,setPresets]=useState([]);
   const [sel,setSel]=useState(null);    // employee
   const [cycle,setCycle]=useState(null);
   const [err,setErr]=useState("");
   const [newInfo,setNewInfo]=useState(null); // zuletzt angelegter MA + Code
+  const [showCatalog,setShowCatalog]=useState(false);
+  const [ready,setReady]=useState(false); // Katalog vorbefüllt?
+
+  useEffect(()=>{(async()=>{ await seedCatalogIfEmpty(practice.id); setReady(true); })();},[practice.id]);
 
   const load=useCallback(async()=>{
     const {data}=await db.from("employees").select("*").eq("practice_id",practice.id).order("created_at");
     setEmployees(data||[]);
   },[practice.id]);
-  useEffect(()=>{load();},[load]);
+  const loadPresets=useCallback(async()=>{
+    const {data}=await db.from("weight_presets").select("*").eq("practice_id",practice.id).order("created_at");
+    setPresets(data||[]);
+  },[practice.id]);
+  useEffect(()=>{load();loadPresets();},[load,loadPresets]);
 
   async function callFn(action,payload){
     const {data:{session}}=await db.auth.getSession();
@@ -280,21 +360,33 @@ function FKApp({practice,setPractice}){
     const j=await r.json(); if(!r.ok)throw new Error(j.error||"Fehler"); return j;
   }
 
+  if(!ready) return <div className="center"><p className="muted">Lädt…</p></div>;
+  if(showCatalog) return <CatalogManager practice={practice} onClose={()=>setShowCatalog(false)}/>;
   if(cycle) return <CycleEditor role="fk" practice={practice} employee={sel} cycle={cycle}
       onBack={()=>setCycle(null)} reloadCycle={setCycle}/>;
-  if(sel) return <EmployeeView practice={practice} employee={sel} callFn={callFn}
+  if(sel) return <EmployeeView practice={practice} employee={sel} callFn={callFn} presets={presets}
       onBack={()=>{setSel(null);load();}} openCycle={setCycle}/>;
 
   return <div>
     <div className="card">
-      <h2>{practice.name}</h2>
+      <h2 style={{marginTop:0}}>{practice.name}</h2>
       <p className="muted">Mitarbeiter melden sich an mit: <b>Praxisname</b> „{practice.name}" + ihrem <b>Namen</b> + ihrem persönlichen <b>Zugangscode</b> (siehe Tabelle unten).</p>
-      <LogoBox practice={practice} setPractice={setPractice}/>
     </div>
     {err && <div className="err">{err}</div>}
+
+    <div className="card">
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}>
+        <div><h3 style={{margin:0}}>Kriterienkatalog</h3>
+          <p className="muted" style={{marginBottom:0}}>Bereiche und Kriterien praxisweit bearbeiten – gilt für <b>alle</b> Mitarbeiter und künftigen Zyklen.</p></div>
+        <button className="btn sm" onClick={()=>setShowCatalog(true)}>Katalog bearbeiten</button>
+      </div>
+    </div>
+
+    <PresetsManager practice={practice} presets={presets} reload={loadPresets}/>
+
     {newInfo && <div className="ok">Mitarbeiter:in „{newInfo.name}" angelegt. <b>Zugangscode: {newInfo.code}</b> — bitte notieren und der Person geben (er bleibt dauerhaft gültig und ist hier in der Tabelle einsehbar).</div>}
     <div className="card">
-      <h3>Mitarbeiter:innen</h3>
+      <h3 style={{marginTop:0}}>Mitarbeiter:innen</h3>
       <AddEmployee onAdd={async(name,position)=>{
         try{
           const code=randCode();
@@ -306,7 +398,7 @@ function FKApp({practice,setPractice}){
         <tbody>{employees.map(e=>
           <tr key={e.id}>
             <td>{e.name}</td><td>{e.position||"–"}</td>
-            <td><span className="tag">{e.code||"–"}</span></td>
+            <td>{e.must_change_pw ? <span className="tag">{e.code||"–"}</span> : <span className="muted">aktiviert · eigenes PW</span>}</td>
             <td>{e.active?"aktiv":"inaktiv"}</td>
             <td><button className="btn sm sec" onClick={()=>setSel(e)}>Öffnen</button></td>
           </tr>)}
@@ -317,25 +409,242 @@ function FKApp({practice,setPractice}){
   </div>;
 }
 
-function LogoBox({practice,setPractice}){
-  const [busy,setBusy]=useState(false);
-  async function up(e){
-    const f=e.target.files[0]; if(!f)return; setBusy(true);
-    const rd=new FileReader();
-    rd.onload=async()=>{
-      const {data}=await db.from("practices").update({logo:rd.result}).eq("id",practice.id).select().single();
-      if(data)setPractice(data); setBusy(false);
-    };
-    rd.readAsDataURL(f);
+/* ---------- Gewichtungs-Vorlagen (Presets) ---------- */
+function PresetsManager({practice,presets,reload}){
+  const [editing,setEditing]=useState(null); // preset-Objekt oder {new:true}
+  const [err,setErr]=useState("");
+
+  if(editing) return <PresetEditor practice={practice} preset={editing}
+      onClose={()=>{setEditing(null);reload();}}/>;
+
+  async function create(){
+    const name=prompt('Name der Gewichtungs-Vorlage (z. B. „ZFA Verwaltung", „Azubi"):','');
+    if(!name||!name.trim())return;
+    const {data,error}=await db.from("weight_presets")
+      .insert({practice_id:practice.id,name:name.trim(),weights:{}}).select().single();
+    if(error){setErr(error.message);return;}
+    setEditing(data);
   }
-  return <div style={{marginTop:10}}>
-    <label>Praxis-Logo (erscheint im Word-Export)</label>
-    <div className="row" style={{alignItems:"center"}}>
-      {practice.logo && <img className="logo-prev" src={practice.logo}/>}
-      <input type="file" accept="image/*" onChange={up} disabled={busy}/>
-      {practice.logo && <button className="btn sm sec" onClick={async()=>{
-        const {data}=await db.from("practices").update({logo:null}).eq("id",practice.id).select().single();
-        if(data)setPractice(data);}}>Entfernen</button>}
+  async function del(p){
+    if(!confirm("Vorlage „"+p.name+"“ löschen? (bereits erstellte Zyklen bleiben unverändert)"))return;
+    await db.from("weight_presets").delete().eq("id",p.id); reload();
+  }
+
+  return <div className="card">
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}>
+      <h3 style={{margin:0}}>Gewichtungs-Vorlagen</h3>
+      <button className="btn sm" onClick={create}>+ Neue Vorlage</button>
+    </div>
+    <p className="muted">Legen Sie feste Gewichtungssätze an. Beim Start eines Bewertungszyklus können Sie eine Vorlage wählen (füllt die Gewichtung vor, bleibt anpassbar) – oder wie bisher alles manuell setzen.</p>
+    {err&&<div className="err">{err}</div>}
+    {presets.length===0
+      ? <p className="muted">Noch keine Vorlage. Ohne Vorlage bewerten Sie die Gewichtung manuell im Zyklus.</p>
+      : <table>
+          <thead><tr><th>Name</th><th>Gewichtete Kriterien</th><th></th></tr></thead>
+          <tbody>{presets.map(p=>{
+            const cnt=Object.keys(p.weights||{}).filter(k=>p.weights[k]!=null).length;
+            return <tr key={p.id}><td>{p.name}</td><td>{cnt}</td>
+              <td style={{whiteSpace:"nowrap"}}>
+                <button className="btn sm sec" onClick={()=>setEditing(p)}>Bearbeiten</button>{" "}
+                <button className="btn sm danger" onClick={()=>del(p)}>Löschen</button></td></tr>;
+          })}</tbody>
+        </table>}
+  </div>;
+}
+
+function PresetEditor({practice,preset,onClose}){
+  const [weights,setWeights]=useState({...(preset.weights||{})});
+  const wRef=useRef({...(preset.weights||{})});
+  const [name,setName]=useState(preset.name);
+  const [open,setOpen]=useState(0);
+  const [saved,setSaved]=useState(""),[err,setErr]=useState("");
+  const [catalog,setCatalog]=useState(null);
+  useEffect(()=>{(async()=>{setCatalog(await loadCatalog(practice.id));})();},[practice.id]);
+  const sections = catalog ? buildSections(catalog,[]) : [];
+
+  function setG(k,v){
+    const next={...wRef.current}; if(v==null) delete next[k]; else next[k]=v;
+    wRef.current=next; setWeights(next);
+  }
+  async function save(){
+    const {error}=await db.from("weight_presets")
+      .update({name:name.trim()||preset.name,weights:wRef.current}).eq("id",preset.id);
+    if(error){setErr(error.message);return;}
+    setSaved("Gespeichert"); setTimeout(()=>setSaved(""),1400);
+  }
+  const setCount=Object.keys(weights).filter(k=>weights[k]!=null).length;
+
+  return <div>
+    <button className="btn sm sec" onClick={async()=>{await save();onClose();}}>← Speichern &amp; zurück</button>
+    <div className="card">
+      <h2 style={{marginTop:0}}>Vorlage bearbeiten</h2>
+      {err&&<div className="err">{err}</div>}
+      <label>Name der Vorlage</label>
+      <input value={name} onChange={e=>setName(e.target.value)}/>
+      <div className="prog"><span className="txt">{setCount} Kriterien gewichtet</span></div>
+      <div className="row" style={{marginTop:10}}>
+        <button className="btn" onClick={save}>Speichern</button>
+        {saved&&<div className="ok" style={{flex:"0 0 auto"}}>{saved}</div>}
+      </div>
+      <p className="muted">Nur die Gewichtung (G) wird hier festgelegt. „–" bedeutet: betrifft die Rolle nicht.</p>
+    </div>
+    {!catalog && <div className="card muted">Katalog lädt…</div>}
+    {sections.map((sec,si)=>{
+      const cnt=sec.items.filter(it=>weights[it.key]!=null).length;
+      return <div key={si}>
+        <div className="sec-head" onClick={()=>setOpen(open===si?-1:si)}>
+          <span>{sec.name}</span><span className="muted">{cnt}/{sec.items.length} · {open===si?"▲":"▼"}</span>
+        </div>
+        {open===si && <div className="card" style={{marginTop:4}}>
+          {sec.items.map(it=>
+            <div className="item" key={it.key}>
+              <div style={{fontWeight:"bold"}}>{it.k}</div>
+              {it.d&&<div className="muted" style={{marginBottom:6}}>{it.d}</div>}
+              <label>Gewichtung (G)</label>
+              <Picker scale={G_SCALE} g value={weights[it.key]??null} onChange={v=>setG(it.key,v)}/>
+            </div>)}
+        </div>}
+      </div>;
+    })}
+    <div className="card"><button className="btn" onClick={async()=>{await save();onClose();}}>Speichern &amp; zurück</button></div>
+  </div>;
+}
+
+/* ---------- Katalog-Editor (praxisweit, nur Führungskraft) ---------- */
+function CatalogManager({practice,onClose}){
+  const [secs,setSecs]=useState([]);
+  const [items,setItems]=useState([]);
+  const [open,setOpen]=useState(-1);
+  const [err,setErr]=useState(""),[busy,setBusy]=useState(false);
+  const load=useCallback(async()=>{
+    const {data:s}=await db.from("catalog_sections").select("*").eq("practice_id",practice.id).order("sort_order");
+    const {data:i}=await db.from("catalog_items").select("*").eq("practice_id",practice.id).order("sort_order");
+    setSecs(s||[]); setItems(i||[]);
+  },[practice.id]);
+  useEffect(()=>{load();},[load]);
+
+  const itemsOf=(sid)=>items.filter(i=>i.section_id===sid).sort((a,b)=>a.sort_order-b.sort_order);
+  async function run(promise){
+    setBusy(true); const {error}=await promise; setBusy(false);
+    if(error){setErr(error.message);return false;}
+    setErr(""); await load(); return true;
+  }
+  async function addSection(){
+    const name=prompt("Name des neuen Bereichs:","");
+    if(!name||!name.trim())return;
+    const order=secs.reduce((m,s)=>Math.max(m,s.sort_order),-1)+1;
+    await run(db.from("catalog_sections").insert({practice_id:practice.id,name:name.trim(),sort_order:order}));
+  }
+  async function renameSection(s){
+    const name=prompt("Bereich umbenennen:",s.name);
+    if(name==null||!name.trim())return;
+    await run(db.from("catalog_sections").update({name:name.trim()}).eq("id",s.id));
+  }
+  async function delSection(s){
+    if(!confirm("Bereich „"+s.name+"“ mit ALLEN darin enthaltenen Kriterien löschen? Gilt praxisweit für alle Mitarbeiter."))return;
+    await run(db.from("catalog_sections").delete().eq("id",s.id));
+  }
+  async function swap(table,a,b){
+    setBusy(true);
+    await db.from(table).update({sort_order:b.sort_order}).eq("id",a.id);
+    await db.from(table).update({sort_order:a.sort_order}).eq("id",b.id);
+    setBusy(false); await load();
+  }
+  async function moveSection(s,dir){
+    const sorted=[...secs].sort((a,b)=>a.sort_order-b.sort_order);
+    const idx=sorted.findIndex(x=>x.id===s.id), j=idx+dir;
+    if(j<0||j>=sorted.length)return;
+    await swap("catalog_sections",s,sorted[j]);
+  }
+  async function addItem(s,criterion,description){
+    const order=itemsOf(s.id).reduce((m,i)=>Math.max(m,i.sort_order),-1)+1;
+    await run(db.from("catalog_items").insert({practice_id:practice.id,section_id:s.id,item_key:uid(),criterion,description:description||null,sort_order:order}));
+  }
+  async function saveItem(it,criterion,description){
+    await run(db.from("catalog_items").update({criterion,description:description||null}).eq("id",it.id));
+  }
+  async function delItem(it){
+    if(!confirm("Kriterium „"+it.criterion+"“ löschen? Gilt praxisweit für alle Mitarbeiter."))return;
+    await run(db.from("catalog_items").delete().eq("id",it.id));
+  }
+  async function moveItem(it,dir){
+    const list=itemsOf(it.section_id), idx=list.findIndex(x=>x.id===it.id), j=idx+dir;
+    if(j<0||j>=list.length)return;
+    await swap("catalog_items",it,list[j]);
+  }
+
+  return <div>
+    <button className="btn sm sec" onClick={onClose}>← Zurück zur Übersicht</button>
+    <div className="card">
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}>
+        <h2 style={{margin:0}}>Kriterienkatalog bearbeiten</h2>
+        <button className="btn sm" onClick={addSection}>+ Neuer Bereich</button>
+      </div>
+      <p className="muted">Änderungen gelten praxisweit für <b>alle</b> Mitarbeiter und künftigen Zyklen. Bereits erfasste Bewertungen zu gelöschten Kriterien entfallen. Die individuelle Ergänzung pro Mitarbeiter (im Zyklus) bleibt davon unberührt.</p>
+      {err&&<div className="err">{err}</div>}
+      {busy&&<div className="muted">Speichere…</div>}
+    </div>
+    {secs.map((s,i)=>{
+      const list=itemsOf(s.id);
+      return <div key={s.id}>
+        <div className="sec-head" onClick={()=>setOpen(open===i?-1:i)}>
+          <span>{s.name}</span><span className="muted">{list.length} · {open===i?"▲":"▼"}</span>
+        </div>
+        {open===i && <div className="card" style={{marginTop:4}}>
+          <div className="row" style={{marginBottom:8}}>
+            <button className="btn sm sec" disabled={busy} onClick={()=>moveSection(s,-1)}>▲ Bereich hoch</button>
+            <button className="btn sm sec" disabled={busy} onClick={()=>moveSection(s,1)}>▼ Bereich runter</button>
+            <button className="btn sm sec" disabled={busy} onClick={()=>renameSection(s)}>Umbenennen</button>
+            <button className="btn sm danger" disabled={busy} onClick={()=>delSection(s)}>Bereich löschen</button>
+          </div>
+          {list.map(it=><CatalogItemRow key={it.id} it={it} busy={busy} onSave={saveItem} onDel={delItem} onMove={moveItem}/>)}
+          {list.length===0 && <p className="muted">Noch keine Kriterien in diesem Bereich.</p>}
+          <CatalogAddItem busy={busy} onAdd={(k,d)=>addItem(s,k,d)}/>
+        </div>}
+      </div>;
+    })}
+    {secs.length===0 && <div className="card muted">Katalog wird geladen …</div>}
+    <div className="card"><button className="btn" onClick={onClose}>Fertig</button></div>
+  </div>;
+}
+
+function CatalogItemRow({it,onSave,onDel,onMove,busy}){
+  const [edit,setEdit]=useState(false);
+  const [k,setK]=useState(it.criterion),[d,setD]=useState(it.description||"");
+  useEffect(()=>{setK(it.criterion);setD(it.description||"");},[it.id,it.criterion,it.description]);
+  if(edit) return <div className="item" style={{background:"var(--brand-l)",borderRadius:8,padding:10}}>
+    <label>Kriterium (Name)</label><input value={k} onChange={e=>setK(e.target.value)}/>
+    <label>Beschreibung</label><textarea rows="2" value={d} onChange={e=>setD(e.target.value)}/>
+    <div className="row" style={{marginTop:6}}>
+      <button className="btn sm" disabled={busy} onClick={async()=>{if(k.trim()){await onSave(it,k.trim(),d.trim());setEdit(false);}}}>Speichern</button>
+      <button className="btn sm sec" onClick={()=>{setEdit(false);setK(it.criterion);setD(it.description||"");}}>Abbrechen</button>
+    </div>
+  </div>;
+  return <div className="item">
+    <div style={{display:"flex",justifyContent:"space-between",gap:8,alignItems:"flex-start"}}>
+      <div style={{minWidth:0}}><div style={{fontWeight:"bold"}}>{it.criterion}</div>
+        {it.description&&<div className="muted">{it.description}</div>}</div>
+      <div style={{whiteSpace:"nowrap",flex:"0 0 auto"}}>
+        <button className="btn sm sec" disabled={busy} title="nach oben" onClick={()=>onMove(it,-1)}>▲</button>{" "}
+        <button className="btn sm sec" disabled={busy} title="nach unten" onClick={()=>onMove(it,1)}>▼</button>{" "}
+        <button className="btn sm sec" onClick={()=>setEdit(true)}>Bearbeiten</button>{" "}
+        <button className="btn sm danger" disabled={busy} onClick={()=>onDel(it)}>Löschen</button>
+      </div>
+    </div>
+  </div>;
+}
+
+function CatalogAddItem({onAdd,busy}){
+  const [open,setOpen]=useState(false);
+  const [k,setK]=useState(""),[d,setD]=useState("");
+  if(!open) return <div style={{marginTop:8}}>
+    <button className="btn sm sec" onClick={()=>setOpen(true)}>+ Kriterium hinzufügen</button></div>;
+  return <div className="item" style={{background:"var(--brand-l)",borderRadius:8,padding:10,marginTop:8}}>
+    <label>Kriterium (Name)</label><input value={k} onChange={e=>setK(e.target.value)}/>
+    <label>Beschreibung (optional)</label><textarea rows="2" value={d} onChange={e=>setD(e.target.value)}/>
+    <div className="row" style={{marginTop:6}}>
+      <button className="btn sm" disabled={busy} onClick={async()=>{if(k.trim()){await onAdd(k.trim(),d.trim());setK("");setD("");setOpen(false);}}}>Hinzufügen</button>
+      <button className="btn sm sec" onClick={()=>{setOpen(false);setK("");setD("");}}>Abbrechen</button>
     </div>
   </div>;
 }
@@ -354,46 +663,98 @@ function AddEmployee({onAdd}){
   </div>;
 }
 
-function EmployeeView({practice,employee,callFn,onBack,openCycle}){
+function EmployeeView({practice,employee,callFn,onBack,openCycle,presets}){
   const [cycles,setCycles]=useState([]);
+  const [flag,setFlag]=useState({}); // cycle_id -> true, wenn MA-Ergänzung noch nicht gegenbewertet
   const [err,setErr]=useState("");
+  const [info,setInfo]=useState("");
+  const [showNew,setShowNew]=useState(false);
   const load=useCallback(async()=>{
     const {data}=await db.from("cycles").select("*").eq("employee_id",employee.id).order("created_at",{ascending:false});
     setCycles(data||[]);
+    const ids=(data||[]).map(c=>c.id);
+    if(ids.length){
+      const {data:cust}=await db.from("custom_items").select("cycle_id,item_key,author").in("cycle_id",ids).eq("author","ma");
+      const {data:fkr}=await db.from("fk_ratings").select("cycle_id,item_key,g,b").in("cycle_id",ids);
+      const rated={}; (fkr||[]).forEach(r=>{if(r.g!=null||r.b!=null)rated[r.cycle_id+"|"+r.item_key]=true;});
+      const f={}; (cust||[]).forEach(c=>{if(!rated[c.cycle_id+"|"+c.item_key])f[c.cycle_id]=true;});
+      setFlag(f);
+    } else setFlag({});
   },[employee.id]);
   useEffect(()=>{load();},[load]);
 
-  async function newCycle(){
-    const title=prompt("Titel des Bewertungszyklus (z. B. Jahresgespräch 2026):","");
-    if(title===null)return;
-    const period=prompt("Zeitraum / Datum:","")||"";
-    const {data,error}=await db.from("cycles").insert({practice_id:practice.id,employee_id:employee.id,title,period}).select().single();
-    if(error){setErr(error.message);return;} openCycle(data);
+  async function createCycle({title,period,preset}){
+    const {data,error}=await db.from("cycles")
+      .insert({practice_id:practice.id,employee_id:employee.id,title,period}).select().single();
+    if(error){setErr(error.message);return;}
+    // Gewichtung aus Vorlage vorbefüllen (bleibt im Zyklus editierbar)
+    if(preset && preset.weights){
+      const rows=Object.entries(preset.weights)
+        .filter(([,g])=>g!=null)
+        .map(([item_key,g])=>({cycle_id:data.id,item_key,g}));
+      if(rows.length) await db.from("fk_ratings").upsert(rows,{onConflict:"cycle_id,item_key"});
+    }
+    setShowNew(false); openCycle(data);
   }
+
   return <div>
     <button className="btn sm sec" onClick={onBack}>← Übersicht</button>
     <div className="card">
-      <h2>{employee.name}</h2><p className="muted">{employee.position}</p>
+      <h2 style={{marginTop:0}}>{employee.name}</h2><p className="muted">{employee.position}</p>
       {err&&<div className="err">{err}</div>}
-      <p className="muted">Zugangscode (fest): <span className="tag">{employee.code||"–"}</span> — diesen Code zusammen mit dem Praxisnamen „{practice.name}" und dem Namen „{employee.name}" zur Anmeldung verwenden.</p>
+      <p className="muted">
+        {employee.must_change_pw
+          ? <>Erst-Login-Code: <span className="tag">{employee.code||"–"}</span> — damit meldet sich {employee.name} <b>einmalig</b> an (Praxisname „{practice.name}" + Name + Code) und legt danach ein eigenes Passwort fest.</>
+          : <>Zugang <b>aktiviert</b> · eigenes Passwort · {employee.email? "E-Mail hinterlegt: "+employee.email : "keine E-Mail hinterlegt"}. Der ursprüngliche Code ist nicht mehr gültig.</>}
+      </p>
+      {info&&<div className="ok">{info}</div>}
       <div className="row" style={{marginTop:8}}>
-        <div style={{display:"flex",alignItems:"flex-end",gap:8}}>
+        <div style={{display:"flex",alignItems:"flex-end",gap:8,flexWrap:"wrap"}}>
           <button className="btn sm sec" onClick={async()=>{try{await callFn("set_active",{employee_id:employee.id,active:!employee.active});onBack();}catch(e){setErr(e.message);}}}>{employee.active?"Deaktivieren":"Aktivieren"}</button>
+          <button className="btn sm sec" onClick={async()=>{
+            if(!confirm("Neuen Zugangscode vergeben? Das aktuelle Passwort bzw. der alte Code wird ungültig. "+employee.name+" meldet sich dann einmalig mit dem neuen Code an und legt ein neues Passwort fest."))return;
+            try{const code=randCode(); await callFn("reset_code",{employee_id:employee.id,code}); setErr(""); setInfo("Neuer Zugangscode: "+code+" — bitte "+employee.name+" geben.");}catch(e){setErr(e.message);}
+          }}>Neuen Zugangscode vergeben</button>
           <button className="btn sm danger" onClick={async()=>{if(confirm("Mitarbeiter und alle Bewertungen löschen?")){try{await callFn("delete",{employee_id:employee.id});onBack();}catch(e){setErr(e.message);}}}}>Löschen</button>
         </div>
       </div>
     </div>
     <div className="card">
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-        <h3>Bewertungszyklen</h3><button className="btn sm" onClick={newCycle}>+ Neuer Zyklus</button></div>
+        <h3 style={{margin:0}}>Bewertungszyklen</h3>
+        <button className="btn sm" onClick={()=>setShowNew(v=>!v)}>{showNew?"Abbrechen":"+ Neuer Zyklus"}</button></div>
+      {showNew && <NewCycleForm presets={presets} onCreate={createCycle}/>}
       <table style={{marginTop:10}}>
         <thead><tr><th>Titel</th><th>Zeitraum</th><th>Status</th><th></th></tr></thead>
         <tbody>{cycles.map(c=>
           <tr key={c.id}><td>{c.title||"–"}</td><td>{c.period||"–"}</td>
-            <td><StatusPill s={c.status}/></td>
+            <td><StatusPill s={c.status}/>{flag[c.id] && <span className="pill locked" style={{marginLeft:6}} title="Mitarbeiter hat Kriterien ergänzt – bitte gegenbewerten">MA-Ergänzung</span>}</td>
             <td><button className="btn sm sec" onClick={()=>openCycle(c)}>Öffnen</button></td></tr>)}
           {cycles.length===0&&<tr><td colSpan="4" className="muted">Noch kein Zyklus.</td></tr>}
         </tbody></table>
+    </div>
+  </div>;
+}
+
+function NewCycleForm({presets,onCreate}){
+  const [title,setTitle]=useState(""),[period,setPeriod]=useState(""),[pid,setPid]=useState(""),[busy,setBusy]=useState(false);
+  return <div className="item" style={{background:"var(--brand-l)",borderRadius:8,padding:12,marginTop:10}}>
+    <div className="grid2">
+      <div><label>Titel (z. B. Jahresgespräch 2026)</label><input value={title} onChange={e=>setTitle(e.target.value)}/></div>
+      <div><label>Zeitraum / Datum</label><input value={period} onChange={e=>setPeriod(e.target.value)}/></div>
+    </div>
+    <label>Gewichtung</label>
+    <select value={pid} onChange={e=>setPid(e.target.value)}>
+      <option value="">Manuell im Zyklus setzen (wie bisher)</option>
+      {presets.map(p=><option key={p.id} value={p.id}>Vorlage: {p.name}</option>)}
+    </select>
+    <div style={{marginTop:10}}>
+      <button className="btn" disabled={busy} onClick={async()=>{
+        setBusy(true);
+        const preset=presets.find(p=>p.id===pid)||null;
+        await onCreate({title:title.trim(),period:period.trim(),preset});
+        setBusy(false);
+      }}>Zyklus anlegen</button>
     </div>
   </div>;
 }
@@ -406,12 +767,18 @@ function StatusPill({s}){
 /* ---------- Cycle Editor (FK & MA) ---------- */
 function CycleEditor({role,practice,employee,cycle,onBack,reloadCycle}){
   const isFK = role==="fk";
+  const practiceId = practice ? practice.id : (employee && employee.practice_id);
   const [fk,setFk]=useState({}); const [ma,setMa]=useState({});
   const fkRef=useRef({}); const maRef=useRef({}); const chains=useRef({});
-  const [open,setOpen]=useState(0); const [tab,setTab]=useState("edit");
+  const [open,setOpen]=useState(-1); const [tab,setTab]=useState("edit");
   const [err,setErr]=useState(""),[saved,setSaved]=useState("");
   const [status,setStatus]=useState(cycle.status);
   const [customs,setCustoms]=useState([]); // eigene Kriterien (custom_items)
+  const [catalog,setCatalog]=useState(null); // Praxis-Katalog aus DB
+  const [resume,setResume]=useState(null); // {section_index,item_key} zuletzt bearbeitet
+  const posChain=useRef(Promise.resolve());
+
+  useEffect(()=>{(async()=>{ setCatalog(await loadCatalog(practiceId)); })();},[practiceId]);
 
   // Schreibvorgänge pro Kriterium in Reihenfolge ausführen (keine Race-Conditions)
   function enqueue(table,k,row){
@@ -433,34 +800,51 @@ function CycleEditor({role,practice,employee,cycle,onBack,reloadCycle}){
     const mm={};(md||[]).forEach(r=>mm[r.item_key]={b:r.b}); maRef.current=mm; setMa(mm);
     const {data:cu}=await db.from("custom_items").select("*").eq("cycle_id",cycle.id).order("id");
     setCustoms(cu||[]);
-  })();},[cycle.id,isFK]);
+    // zuletzt bearbeitete Position laden (geräteübergreifend)
+    const {data:pos}=await db.from("cycle_progress").select("*")
+      .eq("cycle_id",cycle.id).eq("role",role).maybeSingle();
+    if(pos && pos.item_key) setResume({section_index:pos.section_index,item_key:pos.item_key});
+  })();},[cycle.id,isFK,role]);
 
   const maEditable = !isFK && status==="released";
+
+  // Position (Sprungmarke) geräteübergreifend speichern – nacheinander, ohne Blockieren.
+  function savePos(section_index,item_key){
+    posChain.current=posChain.current.then(async()=>{
+      await db.from("cycle_progress").upsert(
+        {cycle_id:cycle.id,role,section_index,item_key,updated_at:new Date().toISOString()},
+        {onConflict:"cycle_id,role"});
+    }).catch(()=>{});
+  }
 
   async function addCustom(sectionName, criterion, description){
     const key=uid();
     const {data,error}=await db.from("custom_items")
-      .insert({cycle_id:cycle.id,item_key:key,section:sectionName,criterion,description:description||null,author:"fk"})
+      .insert({cycle_id:cycle.id,item_key:key,section:sectionName,criterion,description:description||null,author:isFK?"fk":"ma"})
       .select().single();
     if(error){setErr(error.message);return;}
     setCustoms(cs=>[...cs,data]);
   }
   async function delCustom(it){
-    if(!confirm("Eigenes Kriterium „"+it.k+"“ löschen?"))return;
-    await db.from("custom_items").delete().eq("id",it.id);
-    await db.from("fk_ratings").delete().eq("cycle_id",cycle.id).eq("item_key",it.key);
+    const q=(!isFK && it.author==="ma") ? "Ihre Ergänzung „"+it.k+"“ löschen?" : "Eigenes Kriterium „"+it.k+"“ löschen?";
+    if(!confirm(q))return;
+    const {error}=await db.from("custom_items").delete().eq("id",it.id);
+    if(error){setErr(error.message);return;}
     await db.from("ma_ratings").delete().eq("cycle_id",cycle.id).eq("item_key",it.key);
+    if(isFK) await db.from("fk_ratings").delete().eq("cycle_id",cycle.id).eq("item_key",it.key);
     setCustoms(cs=>cs.filter(c=>c.id!==it.id));
   }
 
-  function saveFk(k,patch){
+  function saveFk(si,k,patch){
     const cur=fkRef.current[k]||{g:null,b:null}; const next={...cur,...patch};
     fkRef.current={...fkRef.current,[k]:next}; setFk(fkRef.current);
     enqueue("fk_ratings",k,{cycle_id:cycle.id,item_key:k,g:next.g,b:next.b});
+    savePos(si,k);
   }
-  function saveMa(k,b){
+  function saveMa(si,k,b){
     maRef.current={...maRef.current,[k]:{b}}; setMa(maRef.current);
     enqueue("ma_ratings",k,{cycle_id:cycle.id,item_key:k,b});
+    savePos(si,k);
   }
   function flash(){setSaved("Gespeichert");clearTimeout(window.__t);window.__t=setTimeout(()=>setSaved(""),1200);}
 
@@ -469,14 +853,35 @@ function CycleEditor({role,practice,employee,cycle,onBack,reloadCycle}){
     if(error){setErr(error.message);return;} setStatus(s); if(reloadCycle)reloadCycle(data);
   }
 
-  const sections = buildSections(customs);
+  function jumpTo(section_index,item_key){
+    setOpen(section_index);
+    setTimeout(()=>{
+      const el=document.getElementById("it-"+item_key);
+      if(el){el.scrollIntoView({behavior:"smooth",block:"center"});
+        el.classList.add("hl"); setTimeout(()=>el.classList.remove("hl"),2200);}
+    },60);
+  }
+
+  if(!catalog) return <div className="center"><p className="muted">Lädt…</p></div>;
+  const sections = buildSections(catalog, customs);
   const comp = computeAll(sections, fk, ma);
+
+  // rollenbezogener Fortschritt (für den Balken)
+  let totalItems=0, doneItems=0;
+  sections.forEach(sec=>sec.items.forEach(it=>{
+    totalItems++;
+    if(isFK){ const f=fk[it.key]||{}; if(f.g!=null||f.b!=null) doneItems++; }
+    else { if((ma[it.key]||{}).b!=null) doneItems++; }
+  }));
+  const progPct = totalItems? Math.round(doneItems/totalItems*100) : 0;
+
+  const resumeSecName = resume!=null && sections[resume.section_index] ? sections[resume.section_index].name : null;
 
   return <div>
     <button className="btn sm sec" onClick={onBack}>← Zurück</button>
     <div className="card">
       <div style={{display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:8}}>
-        <div><h2>{cycle.title||"Bewertungszyklus"}</h2>
+        <div><h2 style={{marginTop:0}}>{cycle.title||"Bewertungszyklus"}</h2>
           <p className="muted">{employee?employee.name:""} {cycle.period?"· "+cycle.period:""} · <StatusPill s={status}/></p></div>
         <div className="row" style={{flex:"0 0 auto",alignItems:"flex-start"}}>
           {isFK && status==="draft" && <button className="btn sm" onClick={()=>setStatusTo("released")}>Für Mitarbeiter freigeben</button>}
@@ -490,7 +895,17 @@ function CycleEditor({role,practice,employee,cycle,onBack,reloadCycle}){
       {err&&<div className="err">{err}</div>}
       {saved&&<div className="ok" style={{display:"inline-block"}}>{saved}</div>}
       {!isFK && status!=="released" && <div className="err">Diese Bewertung ist aktuell {status==="locked"?"gesperrt":"abgeschlossen"} – nur Ansicht, keine Änderungen möglich.</div>}
-      <div className="row" style={{marginTop:8}}>
+
+      {tab==="edit" && <div className="prog">
+        <div className="bar"><i style={{width:progPct+"%"}}></i></div>
+        <span className="txt">{doneItems}/{totalItems} bearbeitet ({progPct} %)</span>
+      </div>}
+      {tab==="edit" && resume && resumeSecName &&
+        <div style={{marginTop:8}}>
+          <button className="btn sm sec" onClick={()=>jumpTo(resume.section_index,resume.item_key)}>▶ Weiter, wo Sie waren · {resumeSecName}</button>
+        </div>}
+
+      <div className="row" style={{marginTop:10}}>
         <button className={"btn sm "+(tab==="edit"?"":"sec")} onClick={()=>setTab("edit")}>Bewertung</button>
         {isFK && <button className={"btn sm "+(tab==="eval"?"":"sec")} onClick={()=>setTab("eval")}>Auswertung</button>}
       </div>
@@ -499,27 +914,33 @@ function CycleEditor({role,practice,employee,cycle,onBack,reloadCycle}){
     {tab==="edit" && sections.map((sec,si)=>{
       const sc=comp.sections[si];
       return <div key={si}>
-        <div className="sec-head" onClick={()=>setOpen(open===si?-1:si)}>
+        <div className="sec-head" onClick={()=>{const n=open===si?-1:si; setOpen(n); if(n>=0) savePos(si, (sec.items[0]||{}).key||"");}}>
           <span>{sec.name}</span><span className="muted">{sc.done}/{sc.total} · {open===si?"▲":"▼"}</span>
         </div>
         {open===si && <div className="card" style={{marginTop:4}}>
           {sec.items.map((it)=>{
             const k=it.key; const f=fk[k]||{}; const mb=(ma[k]||{}).b;
-            return <div className="item" key={k}>
+            const maAdded = it.custom && it.author==="ma";
+            const needsFk = isFK && maAdded && !(f.g!=null||f.b!=null);
+            return <div className="item" id={"it-"+k} key={k}
+                style={needsFk?{borderLeft:"3px solid var(--brand)",paddingLeft:8}:null}>
               <div style={{fontWeight:"bold"}}>{it.k}
-                {it.custom && <span className="muted" style={{fontWeight:"normal"}}> · eigenes Kriterium</span>}</div>
+                {it.custom && <span className="muted" style={{fontWeight:"normal"}}> · {maAdded?(isFK?"vom Mitarbeiter ergänzt":"von Ihnen ergänzt"):"eigenes Kriterium"}</span>}
+                {needsFk && <span className="pill locked" style={{marginLeft:8}}>bitte gegenbewerten</span>}</div>
               {it.d && <div className="muted" style={{marginBottom:6}}>{it.d}</div>}
               {isFK && <div className="grid2">
-                <div><label>Gewichtung (G)</label><Picker scale={G_SCALE} g value={f.g??null} onChange={v=>saveFk(k,{g:v})}/></div>
-                <div><label>Bewertung Führungskraft (B)</label><Picker scale={B_SCALE} value={f.b??null} onChange={v=>saveFk(k,{b:v})}/></div>
+                <div><label>Gewichtung (G)</label><Picker scale={G_SCALE} g value={f.g??null} onChange={v=>saveFk(si,k,{g:v})}/></div>
+                <div><label>Bewertung Führungskraft (B)</label><Picker scale={B_SCALE} value={f.b??null} onChange={v=>saveFk(si,k,{b:v})}/></div>
               </div>}
               {isFK && <div className="muted" style={{marginTop:6}}>Selbsteinschätzung MA: <b>{mb??"–"}</b>
                 {it.custom && <button className="btn sm danger" style={{marginLeft:10}} onClick={()=>delCustom(it)}>Kriterium löschen</button>}</div>}
-              {!isFK && <div><label>Deine Selbsteinschätzung (1–5)</label>
-                <Picker scale={B_SCALE} value={mb??null} disabled={!maEditable} onChange={v=>saveMa(k,v)}/></div>}
+              {!isFK && <div><label>Ihre Selbsteinschätzung (1–5)</label>
+                <Picker scale={B_SCALE} value={mb??null} disabled={!maEditable} onChange={v=>saveMa(si,k,v)}/></div>}
+              {!isFK && maAdded && maEditable && <div style={{marginTop:6}}>
+                <button className="btn sm danger" onClick={()=>delCustom(it)}>Meine Ergänzung löschen</button></div>}
             </div>;
           })}
-          {isFK && <AddCustom onAdd={(krit,besch)=>addCustom(sec.name,krit,besch)}/>}
+          {(isFK || maEditable) && <AddCustom role={role} onAdd={(krit,besch)=>addCustom(sec.name,krit,besch)}/>}
         </div>}
       </div>;
     })}
@@ -528,12 +949,14 @@ function CycleEditor({role,practice,employee,cycle,onBack,reloadCycle}){
   </div>;
 }
 
-function AddCustom({onAdd}){
+function AddCustom({onAdd,role}){
+  const isMA = role==="ma";
   const [open,setOpen]=useState(false);
   const [krit,setKrit]=useState(""),[besch,setBesch]=useState("");
   if(!open) return <div style={{marginTop:10}}>
-    <button className="btn sm sec" onClick={()=>setOpen(true)}>+ Eigenes Kriterium in diesem Bereich hinzufügen</button></div>;
-  return <div className="item" style={{marginTop:10,background:"var(--teal-l)",borderRadius:8,padding:10}}>
+    <button className="btn sm sec" onClick={()=>setOpen(true)}>+ {isMA?"Eigene Aufgabe / Kriterium ergänzen":"Eigenes Kriterium in diesem Bereich hinzufügen"}</button></div>;
+  return <div className="item" style={{marginTop:10,background:"var(--brand-l)",borderRadius:8,padding:10}}>
+    {isMA && <div className="muted" style={{marginBottom:6}}>Ihre Ergänzung wird der Führungskraft angezeigt und von ihr gegenbewertet.</div>}
     <label>Neues Kriterium (Name)</label>
     <input value={krit} onChange={e=>setKrit(e.target.value)} placeholder="z. B. Spezialaufgabe XY"/>
     <label>Beschreibung (optional)</label>
@@ -547,25 +970,83 @@ function AddCustom({onAdd}){
 
 function Eval({comp}){
   return <div className="card">
-    <h3>Auswertung (Nutzwert = Gewichtung × Bewertung)</h3>
+    <h3 style={{marginTop:0}}>Auswertung (Nutzwert = Gewichtung × Bewertung)</h3>
     <table>
       <thead><tr><th>Bereich</th><th>Max.</th><th>Erreicht MA</th><th>Erreicht FK</th><th>Ø</th><th>Übereinst.</th></tr></thead>
       <tbody>{comp.sections.map(s=>
         <tr key={s.si}><td>{s.name}</td><td>{s.max}</td><td>{s.nMa}</td><td>{s.nFk}</td>
           <td>{fmt1((s.nMa+s.nFk)/2)}</td><td>{pct(s.agree)}</td></tr>)}
-        <tr style={{fontWeight:"bold",background:"var(--teal-l)"}}>
+        <tr style={{fontWeight:"bold",background:"var(--brand-l)"}}>
           <td>GESAMT</td><td>{comp.tot.max}</td><td>{comp.tot.nMa}</td><td>{comp.tot.nFk}</td>
           <td>{fmt1((comp.tot.nMa+comp.tot.nFk)/2)}</td><td>{pct(comp.tot.agree)}</td></tr>
       </tbody></table>
   </div>;
 }
 
+/* ---------- Erster Login: eigenes Passwort festlegen (MA) ---------- */
+function FirstLoginSetup({employee,onDone}){
+  const [pw,setPw]=useState(""),[pw2,setPw2]=useState(""),[email,setEmail]=useState("");
+  const [err,setErr]=useState(""),[busy,setBusy]=useState(false);
+  async function go(){
+    setErr("");
+    if(pw.length<6){setErr("Das Passwort muss mindestens 6 Zeichen haben.");return;}
+    if(pw!==pw2){setErr("Die Passwörter stimmen nicht überein.");return;}
+    setBusy(true);
+    try{ await callSelf("setup",{password:pw, email:email.trim()||null}); onDone(); }
+    catch(e){ setErr(e.message); setBusy(false); }
+  }
+  return <div className="center">
+    <div className="card">
+      <h2 style={{marginTop:0}}>Willkommen, {employee.name}</h2>
+      <p className="muted">Bitte legen Sie jetzt Ihr <b>eigenes Passwort</b> fest. Künftig melden Sie sich mit dem Praxisnamen, Ihrem Namen und diesem Passwort an – der Zugangscode wird dann nicht mehr benötigt.</p>
+      {err&&<div className="err">{err}</div>}
+      <label>Neues Passwort (mind. 6 Zeichen)</label>
+      <input type="password" value={pw} onChange={e=>setPw(e.target.value)}/>
+      <label>Passwort wiederholen</label>
+      <input type="password" value={pw2} onChange={e=>setPw2(e.target.value)}/>
+      <label>Ihre E-Mail (optional – für „Passwort vergessen")</label>
+      <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="name@beispiel.de"/>
+      <p className="muted">Ohne E-Mail können Sie sich anmelden; ein vergessenes Passwort setzt dann die Führungskraft zurück.</p>
+      <div style={{marginTop:8}}><button className="btn" disabled={busy} onClick={go}>Passwort speichern &amp; loslegen</button></div>
+    </div>
+  </div>;
+}
+
+/* ---------- Passwort über E-Mail-Link neu setzen (FK & MA) ---------- */
+function RecoveryReset({onDone}){
+  const [pw,setPw]=useState(""),[pw2,setPw2]=useState("");
+  const [err,setErr]=useState(""),[msg,setMsg]=useState(""),[busy,setBusy]=useState(false);
+  async function go(){
+    setErr("");setMsg("");
+    if(pw.length<6){setErr("Das Passwort muss mindestens 6 Zeichen haben.");return;}
+    if(pw!==pw2){setErr("Die Passwörter stimmen nicht überein.");return;}
+    setBusy(true);
+    const {error}=await db.auth.updateUser({password:pw});
+    setBusy(false);
+    if(error){setErr(error.message);return;}
+    setMsg("Passwort geändert – Sie sind angemeldet."); setTimeout(onDone,900);
+  }
+  return <div className="center">
+    <div className="card">
+      <h2 style={{marginTop:0}}>Neues Passwort festlegen</h2>
+      {err&&<div className="err">{err}</div>}
+      {msg&&<div className="ok">{msg}</div>}
+      <label>Neues Passwort (mind. 6 Zeichen)</label>
+      <input type="password" value={pw} onChange={e=>setPw(e.target.value)}/>
+      <label>Passwort wiederholen</label>
+      <input type="password" value={pw2} onChange={e=>setPw2(e.target.value)}/>
+      <div style={{marginTop:8}}><button className="btn" disabled={busy} onClick={go}>Passwort speichern</button></div>
+    </div>
+  </div>;
+}
+
 /* ---------- MA Login ---------- */
 function MALogin({onBack,onReady}){
   const [pname,setPname]=useState(""),[name,setName]=useState(""),[code,setCode]=useState("");
-  const [err,setErr]=useState(""),[busy,setBusy]=useState(false);
+  const [err,setErr]=useState(""),[msg,setMsg]=useState(""),[busy,setBusy]=useState(false);
+  const [forgot,setForgot]=useState(false),[remail,setRemail]=useState("");
   async function go(){
-    setErr("");setBusy(true);
+    setErr("");setMsg("");setBusy(true);
     try{
       const r=await fetch(FN_BASE+"/employee-login",{method:"POST",
         headers:{Authorization:"Bearer "+CFG.SUPABASE_ANON_KEY,"Content-Type":"application/json"},
@@ -576,48 +1057,123 @@ function MALogin({onBack,onReady}){
       onReady();
     }catch(e){setErr(e.message);setBusy(false);}
   }
+  async function doForgot(){
+    setErr("");setMsg("");
+    if(!remail.trim()){setErr("Bitte Ihre hinterlegte E-Mail eingeben.");return;}
+    setBusy(true);
+    const {error}=await db.auth.resetPasswordForEmail(remail.trim(),{redirectTo:window.location.href});
+    setBusy(false);
+    if(error)setErr(error.message);
+    else setMsg("Wenn zu dieser E-Mail ein Konto besteht, wurde ein Link zum Zurücksetzen verschickt.");
+  }
   return <div className="center">
     <button className="btn sm sec" onClick={onBack}>← Zurück</button>
     <div className="card">
-      <h2>Mitarbeiter-Anmeldung</h2>
+      <h2 style={{marginTop:0}}>Mitarbeiter:in – Anmeldung</h2>
+      <p className="muted">Beim <b>ersten Mal</b> melden Sie sich mit dem <b>Zugangscode</b> Ihrer Praxis an und legen danach Ihr <b>eigenes Passwort</b> fest. Danach nutzen Sie Ihr Passwort. Mit einer eigenen E-Mail können Sie ein vergessenes Passwort selbst zurücksetzen.</p>
       {err&&<div className="err">{err}</div>}
-      <label>Praxisname</label><input value={pname} onChange={e=>setPname(e.target.value)} placeholder="Name der Praxis"/>
-      <label>Dein Name</label><input value={name} onChange={e=>setName(e.target.value)}/>
-      <label>Zugangscode</label><input value={code} onChange={e=>setCode(e.target.value)}/>
-      <div style={{marginTop:14}}><button className="btn" disabled={busy} onClick={go}>Anmelden</button></div>
+      {msg&&<div className="ok">{msg}</div>}
+      {!forgot ? <>
+        <label>Praxisname</label><input value={pname} onChange={e=>setPname(e.target.value)} placeholder="Name der Praxis"/>
+        <label>Ihr Name</label><input value={name} onChange={e=>setName(e.target.value)}/>
+        <label>Zugangscode (erstes Mal) oder Ihr Passwort</label>
+        <input type="password" value={code} onChange={e=>setCode(e.target.value)}/>
+        <div style={{marginTop:14,display:"flex",gap:8,flexWrap:"wrap"}}>
+          <button className="btn" disabled={busy} onClick={go}>Anmelden</button>
+          <button className="btn sec" onClick={()=>{setForgot(true);setErr("");setMsg("");}}>Passwort vergessen?</button>
+        </div>
+      </> : <>
+        <p className="muted">Geben Sie Ihre hinterlegte E-Mail ein – Sie erhalten einen Link zum Zurücksetzen. (Nur möglich, wenn Sie zuvor eine E-Mail hinterlegt haben.)</p>
+        <label>Ihre E-Mail</label><input type="email" value={remail} onChange={e=>setRemail(e.target.value)}/>
+        <div style={{marginTop:14,display:"flex",gap:8,flexWrap:"wrap"}}>
+          <button className="btn" disabled={busy} onClick={doForgot}>Link senden</button>
+          <button className="btn sec" onClick={()=>{setForgot(false);setErr("");setMsg("");}}>Zurück zur Anmeldung</button>
+        </div>
+      </>}
     </div>
   </div>;
 }
 
 /* ---------- MA App ---------- */
-function MAApp({employee}){
+function MAApp({employee,reloadEmployee}){
   const [cycles,setCycles]=useState([]); const [cycle,setCycle]=useState(null);
   useEffect(()=>{(async()=>{
     const {data}=await db.from("cycles").select("*").eq("employee_id",employee.id).order("created_at",{ascending:false});
     setCycles(data||[]);
   })();},[employee.id,cycle]);
   if(cycle) return <CycleEditor role="ma" employee={employee} cycle={cycle} onBack={()=>setCycle(null)} reloadCycle={setCycle}/>;
+  return <div>
+    <div className="card">
+      <h2 style={{marginTop:0}}>Hallo {employee.name}</h2>
+      <p className="muted">Hier sehen Sie die für Sie freigegebenen Bewertungen.</p>
+      <table style={{marginTop:10}}>
+        <thead><tr><th>Titel</th><th>Zeitraum</th><th>Status</th><th></th></tr></thead>
+        <tbody>{cycles.map(c=>
+          <tr key={c.id}><td>{c.title||"–"}</td><td>{c.period||"–"}</td><td><StatusPill s={c.status}/></td>
+            <td><button className="btn sm sec" onClick={()=>setCycle(c)}>{c.status==="released"?"Bearbeiten":"Ansehen"}</button></td></tr>)}
+          {cycles.length===0&&<tr><td colSpan="4" className="muted">Aktuell ist nichts für Sie freigegeben.</td></tr>}
+        </tbody></table>
+    </div>
+    <MAAccount employee={employee} reloadEmployee={reloadEmployee}/>
+  </div>;
+}
+
+/* ---------- MA Konto: Passwort & E-Mail ändern ---------- */
+function MAAccount({employee,reloadEmployee}){
+  const [open,setOpen]=useState(false);
+  const [pw,setPw]=useState(""),[pw2,setPw2]=useState("");
+  const [email,setEmail]=useState(employee.email||"");
+  const [err,setErr]=useState(""),[msg,setMsg]=useState(""),[busy,setBusy]=useState(false);
+  async function savePw(){
+    setErr("");setMsg("");
+    if(pw.length<6){setErr("Das Passwort muss mindestens 6 Zeichen haben.");return;}
+    if(pw!==pw2){setErr("Die Passwörter stimmen nicht überein.");return;}
+    setBusy(true);
+    try{ await callSelf("change_password",{password:pw}); setMsg("Passwort geändert."); setPw("");setPw2(""); }
+    catch(e){ setErr(e.message); }
+    setBusy(false);
+  }
+  async function saveEmail(){
+    setErr("");setMsg("");setBusy(true);
+    try{ await callSelf("set_email",{email:email.trim()}); setMsg("E-Mail gespeichert."); if(reloadEmployee)reloadEmployee(); }
+    catch(e){ setErr(e.message); }
+    setBusy(false);
+  }
   return <div className="card">
-    <h2>Hallo {employee.name}</h2>
-    <p className="muted">Hier siehst du die für dich freigegebenen Bewertungen.</p>
-    <table style={{marginTop:10}}>
-      <thead><tr><th>Titel</th><th>Zeitraum</th><th>Status</th><th></th></tr></thead>
-      <tbody>{cycles.map(c=>
-        <tr key={c.id}><td>{c.title||"–"}</td><td>{c.period||"–"}</td><td><StatusPill s={c.status}/></td>
-          <td><button className="btn sm sec" onClick={()=>setCycle(c)}>{c.status==="released"?"Bearbeiten":"Ansehen"}</button></td></tr>)}
-        {cycles.length===0&&<tr><td colSpan="4" className="muted">Aktuell ist nichts für dich freigegeben.</td></tr>}
-      </tbody></table>
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}>
+      <h3 style={{margin:0}}>Passwort &amp; E-Mail</h3>
+      <button className="btn sm sec" onClick={()=>setOpen(v=>!v)}>{open?"Schließen":"Ändern"}</button>
+    </div>
+    {!open && <p className="muted" style={{marginBottom:0}}>Hinterlegte E-Mail: {employee.email? employee.email : "keine (Passwort-Reset nur über die Führungskraft)"}</p>}
+    {open && <div>
+      {err&&<div className="err">{err}</div>}
+      {msg&&<div className="ok">{msg}</div>}
+      <label>Neues Passwort (mind. 6 Zeichen)</label><input type="password" value={pw} onChange={e=>setPw(e.target.value)}/>
+      <label>Passwort wiederholen</label><input type="password" value={pw2} onChange={e=>setPw2(e.target.value)}/>
+      <div style={{marginTop:8}}><button className="btn sm" disabled={busy} onClick={savePw}>Passwort ändern</button></div>
+      <label style={{marginTop:14}}>Ihre E-Mail (für „Passwort vergessen")</label>
+      <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="name@beispiel.de"/>
+      <div style={{marginTop:8}}><button className="btn sm" disabled={busy} onClick={saveEmail}>E-Mail speichern</button></div>
+    </div>}
   </div>;
 }
 
 /* ---------- Word-Export ---------- */
-function exportWord(practice,employee,cycle,comp,fk,ma,sections){
+// Logo einmalig laden und als Data-URL für den Word-Export bereitstellen.
+async function logoDataUrl(){
+  try{
+    const r=await fetch(LOGO_URL); const b=await r.blob();
+    return await new Promise(res=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.readAsDataURL(b);});
+  }catch(e){ return ""; }
+}
+
+async function exportWord(practice,employee,cycle,comp,fk,ma,sections){
   const esc=s=>(s==null?"":String(s)).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
   let body="";
-  (sections||buildSections([])).forEach((sec)=>{
-    body+=`<h2 style="color:#07697A">${esc(sec.name)}</h2>`;
+  (sections||[]).forEach((sec)=>{
+    body+=`<h2 style="color:${BRAND}">${esc(sec.name)}</h2>`;
     body+=`<table border="1" cellspacing="0" cellpadding="4" style="border-collapse:collapse;width:100%;font-size:10pt">
-      <tr style="background:#e3f0f2;color:#07697A">
+      <tr style="background:${BRAND_L};color:${BRAND}">
         <th>Kriterium</th><th>Beschreibung</th><th>G</th><th>B&nbsp;MA</th><th>B&nbsp;FK</th><th>Nutzwert&nbsp;FK</th><th>Übereinst.</th></tr>`;
     sec.items.forEach((it)=>{
       const k=it.key; const f=fk[k]||{}; const mb=(ma[k]||{}).b;
@@ -628,13 +1184,14 @@ function exportWord(practice,employee,cycle,comp,fk,ma,sections){
     });
     body+="</table><br/>";
   });
-  let eval_="<h2 style='color:#07697A'>Gesamtauswertung je Bereich</h2><table border='1' cellspacing='0' cellpadding='4' style='border-collapse:collapse;width:100%;font-size:10pt'><tr style='background:#e3f0f2;color:#07697A'><th>Bereich</th><th>Max.&nbsp;Punktzahl</th><th>Erreicht&nbsp;MA</th><th>Erreicht&nbsp;FK</th><th>Ø&nbsp;(MA+FK)/2</th><th>Übereinst.&nbsp;%</th></tr>";
+  let eval_=`<h2 style='color:${BRAND}'>Gesamtauswertung je Bereich</h2><table border='1' cellspacing='0' cellpadding='4' style='border-collapse:collapse;width:100%;font-size:10pt'><tr style='background:${BRAND_L};color:${BRAND}'><th>Bereich</th><th>Max.&nbsp;Punktzahl</th><th>Erreicht&nbsp;MA</th><th>Erreicht&nbsp;FK</th><th>Ø&nbsp;(MA+FK)/2</th><th>Übereinst.&nbsp;%</th></tr>`;
   comp.sections.forEach(s=>{eval_+=`<tr><td>${esc(s.name)}</td><td align='center'>${s.max}</td><td align='center'>${s.nMa}</td><td align='center'>${s.nFk}</td><td align='center'>${fmt1((s.nMa+s.nFk)/2)}</td><td align='center'>${pct(s.agree)}</td></tr>`;});
-  eval_+=`<tr style='font-weight:bold;background:#e3f0f2'><td>GESAMT</td><td align='center'>${comp.tot.max}</td><td align='center'>${comp.tot.nMa}</td><td align='center'>${comp.tot.nFk}</td><td align='center'>${fmt1((comp.tot.nMa+comp.tot.nFk)/2)}</td><td align='center'>${pct(comp.tot.agree)}</td></tr></table><br/>`;
+  eval_+=`<tr style='font-weight:bold;background:${BRAND_L}'><td>GESAMT</td><td align='center'>${comp.tot.max}</td><td align='center'>${comp.tot.nMa}</td><td align='center'>${comp.tot.nFk}</td><td align='center'>${fmt1((comp.tot.nMa+comp.tot.nFk)/2)}</td><td align='center'>${pct(comp.tot.agree)}</td></tr></table><br/>`;
 
-  const logo=practice.logo?`<img src="${practice.logo}" style="max-height:70px"/><br/>`:"";
+  const durl=await logoDataUrl();
+  const logo=durl?`<img src="${durl}" style="height:52px"/><br/><br/>`:"";
   const html=`<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word'>
-  <head><meta charset="utf-8"><style>body{font-family:Arial}h1{color:#07697A;font-size:22pt}h2{font-size:13pt}</style></head>
+  <head><meta charset="utf-8"><style>body{font-family:Arial}h1{color:${BRAND};font-size:22pt}h2{font-size:13pt}</style></head>
   <body>${logo}<h1>Stärken- &amp; Kompetenzprofil</h1>
   <p><b>Praxis:</b> ${esc(practice.name)}<br/><b>Mitarbeiter:in:</b> ${esc(employee?employee.name:"")}<br/>
   <b>Beurteilung:</b> ${esc(cycle.title||"")}<br/><b>Zeitraum:</b> ${esc(cycle.period||"")}</p>
