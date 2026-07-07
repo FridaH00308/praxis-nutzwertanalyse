@@ -1206,7 +1206,9 @@ async function exportWord(practice,employee,cycle,comp,fk,ma,sections){
   eval_+=`<tr style='font-weight:bold;background:${BRAND_L}'><td>GESAMT</td><td align='center'>${comp.tot.max}</td><td align='center'>${comp.tot.nMa}</td><td align='center'>${comp.tot.nFk}</td><td align='center'>${fmt1((comp.tot.nMa+comp.tot.nFk)/2)}</td><td align='center'>${pct(comp.tot.agree)}</td></tr></table><br/>`;
 
   const durl=await logoDataUrl();
-  const logoCell=durl?`<td style="border:none;text-align:right;vertical-align:top;padding:0"><img src="${durl}" style="height:20px"/></td>`:"";
+  // Word ignoriert CSS-Höhe bei Bildern – daher die HTML-Attribute width/height nutzen.
+  // Logo ~24px hoch (≈ Höhe der 17pt-Überschrift), Seitenverhältnis 1500:199 → Breite 181.
+  const logoCell=durl?`<td style="border:none;text-align:right;vertical-align:middle;padding:0"><img src="${durl}" width="181" height="24" style="width:181px;height:24px"/></td>`:"";
   const html=`<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word'>
   <head><meta charset="utf-8"><style>body{font-family:Arial;font-size:10pt;color:#222}h1{color:${BRAND};font-size:17pt;margin:0 0 6pt}h2{color:${BRAND};font-size:12pt;margin:14pt 0 4pt}p{font-size:10pt}table{font-size:9pt}</style></head>
   <body><table style="width:100%;border:none;border-collapse:collapse"><tr><td style="border:none;vertical-align:top;padding:0"><h1>Stärken- &amp; Kompetenzprofil</h1></td>${logoCell}</tr></table>
