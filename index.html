@@ -370,7 +370,7 @@ function FKApp({practice,setPractice}){
   return <div>
     <div className="card">
       <h2 style={{marginTop:0}}>{practice.name}</h2>
-      <p className="muted">Mitarbeiter melden sich an mit: <b>Praxisname</b> „{practice.name}" + ihrem <b>Namen</b> + ihrem persönlichen <b>Zugangscode</b> (siehe Tabelle unten).</p>
+      <p className="muted">Mitarbeiter melden sich an mit ihrem <b>Namen</b> + ihrem persönlichen <b>Zugangscode</b> (siehe Tabelle unten).</p>
     </div>
     {err && <div className="err">{err}</div>}
 
@@ -684,8 +684,12 @@ function EmployeeView({practice,employee,callFn,onBack,openCycle,presets}){
   useEffect(()=>{load();},[load]);
 
   async function createCycle({title,period,preset}){
+    // Katalog (Bereiche + Kriterien) als Snapshot im Zyklus einfrieren:
+    // Neue Dokumente übernehmen den aktuellen Katalog, spätere Katalog-Änderungen
+    // der Führungskraft wirken sich NICHT mehr rückwirkend auf dieses Dokument aus.
+    const catalogSnapshot=await loadCatalog(practice.id);
     const {data,error}=await db.from("cycles")
-      .insert({practice_id:practice.id,employee_id:employee.id,title,period}).select().single();
+      .insert({practice_id:practice.id,employee_id:employee.id,title,period,catalog:catalogSnapshot}).select().single();
     if(error){setErr(error.message);return;}
     // Gewichtung aus Vorlage vorbefüllen (bleibt im Zyklus editierbar)
     if(preset && preset.weights){
@@ -704,7 +708,7 @@ function EmployeeView({practice,employee,callFn,onBack,openCycle,presets}){
       {err&&<div className="err">{err}</div>}
       <p className="muted">
         {employee.must_change_pw
-          ? <>Erst-Login-Code: <span className="tag">{employee.code||"–"}</span> — damit meldet sich {employee.name} <b>einmalig</b> an (Praxisname „{practice.name}" + Name + Code) und legt danach ein eigenes Passwort fest.</>
+          ? <>Erst-Login-Code: <span className="tag">{employee.code||"–"}</span> — damit meldet sich {employee.name} <b>einmalig</b> an (Name + Code) und legt danach ein eigenes Passwort fest.</>
           : <>Zugang <b>aktiviert</b> · eigenes Passwort · {employee.email? "E-Mail hinterlegt: "+employee.email : "keine E-Mail hinterlegt"}. Der ursprüngliche Code ist nicht mehr gültig.</>}
       </p>
       {info&&<div className="ok">{info}</div>}
@@ -778,7 +782,12 @@ function CycleEditor({role,practice,employee,cycle,onBack,reloadCycle}){
   const [resume,setResume]=useState(null); // {section_index,item_key} zuletzt bearbeitet
   const posChain=useRef(Promise.resolve());
 
-  useEffect(()=>{(async()=>{ setCatalog(await loadCatalog(practiceId)); })();},[practiceId]);
+  // Den im Zyklus eingefrorenen Katalog-Snapshot verwenden, damit das Dokument
+  // stabil bleibt, auch wenn die Führungskraft den Katalog später ändert.
+  // Fallback auf den Live-Katalog nur für Alt-Zyklen ohne Snapshot.
+  useEffect(()=>{(async()=>{
+    setCatalog((cycle.catalog && cycle.catalog.length) ? cycle.catalog : await loadCatalog(practiceId));
+  })();},[practiceId,cycle.id]);
 
   // Schreibvorgänge pro Kriterium in Reihenfolge ausführen (keine Race-Conditions)
   function enqueue(table,k,row){
@@ -833,6 +842,33 @@ function CycleEditor({role,practice,employee,cycle,onBack,reloadCycle}){
     await db.from("ma_ratings").delete().eq("cycle_id",cycle.id).eq("item_key",it.key);
     if(isFK) await db.from("fk_ratings").delete().eq("cycle_id",cycle.id).eq("item_key",it.key);
     setCustoms(cs=>cs.filter(c=>c.id!==it.id));
+  }
+
+  // --- Standard-Kriterien NUR in diesem Dokument anpassen ---
+  // Es wird ausschließlich der Katalog-Snapshot dieses Zyklus (cycles.catalog)
+  // verändert – der praxisweite Master-Katalog und andere Dokumente bleiben
+  // unberührt. Nur die Führungskraft nutzt diese Funktionen.
+  async function persistCatalog(next){
+    setCatalog(next);
+    const {error}=await db.from("cycles").update({catalog:next,updated_at:new Date().toISOString()}).eq("id",cycle.id);
+    if(error){setErr(error.message);} else flash();
+  }
+  function editCatalogItem(item_key,patch){
+    const next=(catalog||[]).map(sec=>({...sec,
+      items:sec.items.map(it=> it.item_key===item_key
+        ? {...it,criterion:patch.criterion,description:patch.description}
+        : it)}));
+    persistCatalog(next);
+  }
+  async function deleteCatalogItem(item_key,label){
+    if(!confirm("Kriterium „"+label+"“ nur in diesem Dokument entfernen? Eine bereits erfasste Bewertung dazu geht verloren. Andere Dokumente bleiben unverändert."))return;
+    const next=(catalog||[]).map(sec=>({...sec,items:sec.items.filter(it=>it.item_key!==item_key)}));
+    await persistCatalog(next);
+    // Bewertungen dieses Kriteriums NUR in diesem Zyklus entfernen
+    await db.from("fk_ratings").delete().eq("cycle_id",cycle.id).eq("item_key",item_key);
+    await db.from("ma_ratings").delete().eq("cycle_id",cycle.id).eq("item_key",item_key);
+    const nf={...fkRef.current}; delete nf[item_key]; fkRef.current=nf; setFk(nf);
+    const nm={...maRef.current}; delete nm[item_key]; maRef.current=nm; setMa(nm);
   }
 
   function saveFk(si,k,patch){
@@ -951,6 +987,7 @@ function CycleEditor({role,practice,employee,cycle,onBack,reloadCycle}){
               </div>}
               {isFK && <div className="muted" style={{marginTop:6}}>Selbsteinschätzung MA: <b>{mb??"–"}</b>
                 {it.custom && <button className="btn sm danger" style={{marginLeft:10}} onClick={()=>delCustom(it)}>Kriterium löschen</button>}</div>}
+              {isFK && !it.custom && <EditBaseItem it={it} onSave={p=>editCatalogItem(it.key,p)} onDelete={()=>deleteCatalogItem(it.key,it.k)}/>}
               {!isFK && <div><label>Ihre Selbsteinschätzung (1–5)</label>
                 <Picker scale={B_SCALE} value={mb??null} disabled={!maEditable} onChange={v=>saveMa(si,k,v)}/></div>}
               {!isFK && maAdded && maEditable && <div style={{marginTop:6}}>
@@ -963,6 +1000,27 @@ function CycleEditor({role,practice,employee,cycle,onBack,reloadCycle}){
     })}
 
     {tab==="eval" && isFK && <Eval comp={comp}/>}
+  </div>;
+}
+
+// Standard-Kriterium NUR in diesem Dokument umbenennen/beschreiben (Führungskraft).
+function EditBaseItem({it,onSave,onDelete}){
+  const [open,setOpen]=useState(false);
+  const [k,setK]=useState(it.k),[d,setD]=useState(it.d||"");
+  if(!open) return <div style={{marginTop:6}}>
+    <button className="btn sm sec" onClick={()=>{setK(it.k);setD(it.d||"");setOpen(true);}}>Kriterium bearbeiten</button>
+    <button className="btn sm danger" style={{marginLeft:8}} onClick={onDelete}>Kriterium entfernen</button>
+  </div>;
+  return <div className="item" style={{marginTop:6,background:"var(--brand-l)",borderRadius:8,padding:10}}>
+    <div className="muted" style={{marginBottom:6}}>Änderung gilt nur für dieses Dokument – andere Dokumente und der Katalog bleiben unverändert.</div>
+    <label>Kriterium (Name)</label>
+    <input value={k} onChange={e=>setK(e.target.value)}/>
+    <label>Beschreibung (optional)</label>
+    <input value={d} onChange={e=>setD(e.target.value)}/>
+    <div className="row" style={{marginTop:8}}>
+      <button className="btn sm" onClick={()=>{if(k.trim()){onSave({criterion:k.trim(),description:d.trim()||null});setOpen(false);}}}>Speichern</button>
+      <button className="btn sm sec" onClick={()=>setOpen(false)}>Abbrechen</button>
+    </div>
   </div>;
 }
 
@@ -1015,7 +1073,7 @@ function FirstLoginSetup({employee,onDone}){
   return <div className="center">
     <div className="card">
       <h2 style={{marginTop:0}}>Willkommen, {employee.name}</h2>
-      <p className="muted">Bitte legen Sie jetzt Ihr <b>eigenes Passwort</b> fest. Künftig melden Sie sich mit dem Praxisnamen, Ihrem Namen und diesem Passwort an – der Zugangscode wird dann nicht mehr benötigt.</p>
+      <p className="muted">Bitte legen Sie jetzt Ihr <b>eigenes Passwort</b> fest. Künftig melden Sie sich mit Ihrem Namen und diesem Passwort an – der Zugangscode wird dann nicht mehr benötigt.</p>
       {err&&<div className="err">{err}</div>}
       <label>Neues Passwort (mind. 6 Zeichen)</label>
       <input type="password" value={pw} onChange={e=>setPw(e.target.value)}/>
@@ -1059,7 +1117,7 @@ function RecoveryReset({onDone}){
 
 /* ---------- MA Login ---------- */
 function MALogin({onBack,onReady}){
-  const [pname,setPname]=useState(""),[name,setName]=useState(""),[code,setCode]=useState("");
+  const [name,setName]=useState(""),[code,setCode]=useState("");
   const [err,setErr]=useState(""),[msg,setMsg]=useState(""),[busy,setBusy]=useState(false);
   const [forgot,setForgot]=useState(false),[remail,setRemail]=useState("");
   async function go(){
@@ -1067,7 +1125,7 @@ function MALogin({onBack,onReady}){
     try{
       const r=await fetch(FN_BASE+"/employee-login",{method:"POST",
         headers:{Authorization:"Bearer "+CFG.SUPABASE_ANON_KEY,"Content-Type":"application/json"},
-        body:JSON.stringify({practice_name:pname,name,code})});
+        body:JSON.stringify({name,code})});
       const j=await r.json();
       if(!r.ok)throw new Error(j.error||"Login fehlgeschlagen");
       await db.auth.setSession({access_token:j.access_token,refresh_token:j.refresh_token});
@@ -1091,7 +1149,6 @@ function MALogin({onBack,onReady}){
       {err&&<div className="err">{err}</div>}
       {msg&&<div className="ok">{msg}</div>}
       {!forgot ? <>
-        <label>Praxisname</label><input value={pname} onChange={e=>setPname(e.target.value)} placeholder="Name der Praxis"/>
         <label>Ihr Name</label><input value={name} onChange={e=>setName(e.target.value)}/>
         <label>Zugangscode (erstes Mal) oder Ihr Passwort</label>
         <input type="password" value={code} onChange={e=>setCode(e.target.value)}/>
